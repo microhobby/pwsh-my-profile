@@ -170,15 +170,27 @@ function lcf { ls -CF $args }
 
 # bash completation?
 # Install-Module -Name "PSBashCompletions"
-# TODO: on demmand
 function __completation ($command) {
     Register-BashArgumentCompleter "$command" /usr/share/bash-completion/completions/$command
 }
 
-# ok
-Get-ChildItem /usr/share/bash-completion/completions/ | 
-    Where-Object {$_.Attributes -ne "Directory"} |
-    Foreach-Object { __completation "$($_.Name)" }
+# register on demand
+Set-PSReadLineKeyHandler -Key Spacebar -ScriptBlock {
+    $line = $cursor = $null
+    
+    # get the command
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref] $line, [ref] $cursor)
+    # the key handled must be outputed
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert(' ')
+    
+    # check if we have the bash complestions mathc
+    try {
+        __completation $line   
+    }
+    catch {
+        # nothing to do here    
+    }
+}
 
 # for WSL code
 function code-wslg {
