@@ -201,7 +201,14 @@ function code-wslg {
 # for wsl2
 #$env:LIBGL_ALWAYS_INDIRECT=1
 #$env:DISPLAY="$(egrep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0"
-#function explorer { explorer.exe $args }
+
+# maintain the "explorer ." muscle memory
+# TODO check WSL and use wslu
+if ($Global:IsLinux) {
+    function explorer { dde-file-manager $args }
+} elseif ($Global:IsWindows) {
+    function explorer { explorer.exe $args }
+}
 
 # set the default theme
 #$env:THEME=$(wslsys -t)
