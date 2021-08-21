@@ -19,6 +19,21 @@ function gts ()
     git status
 }
 
+function gtd ()
+{
+    git diff
+}
+
+function gta ()
+{
+    git add $args
+}
+
+function gtca ()
+{
+    git commit --amend
+}
+
 # autocomplete
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 # Autocompletion for arrow keys
