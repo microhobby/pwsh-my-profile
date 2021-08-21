@@ -82,6 +82,16 @@ $global:MINUS_SECTS = 1
         $CPATH = $executionContext.SessionState.Path.CurrentLocation.ToString().Split("/")
         -join(" 📂 ", $CPATH[$CPATH.Count -2], "/", $CPATH[$CPATH.Count -1], " ")
     }
+    {
+        "`t"
+    }
+    {
+        if ($Global:IsWindows) {
+            "🪟 Windows"
+        } else {
+            "🐧 Linux"
+        }
+    }
     { "`n" } # Start another line
     # git branch and cmd error check
     {
