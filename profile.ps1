@@ -203,10 +203,13 @@ function code-wslg {
 #$env:DISPLAY="$(egrep -m 1 nameserver /etc/resolv.conf | awk '{print $2}'):0.0"
 
 # maintain the "explorer ." muscle memory
-# TODO check WSL and use wslu
 if ($Global:IsLinux) {
-    function explorer { dde-file-manager $args }
-} elseif ($Global:IsWindows) {
+    if (-not $env:WSL_DISTRO_NAME) {
+        function explorer { dde-file-manager $args }
+    } else {
+        function explorer { wslview $args }
+    }
+} else {
     function explorer { explorer.exe $args }
 }
 
