@@ -111,7 +111,6 @@ $global:MINUS_SECTS = 1
     # git branch and cmd error check
     {
         $EC = $global:EC
-        $ERRORS_COUNT = $global:EXIT_CODE
 
         # execute git to check current branch
         $gitRet = git rev-parse --abbrev-ref HEAD
@@ -213,13 +212,17 @@ Set-PSReadLineKeyHandler -Key Spacebar -ScriptBlock {
         __completation $line   
     }
     catch {
-        # nothing to do here    
+        # let's clear these errors
+        $Error.RemoveAt(0)
+        $Error.RemoveAt(0)
     }
 }
 
 # for WSL code
-function code-wslg {
-    /usr/share/code/code $args
+if ($env:WSL_DISTRO_NAME) {
+    function code-wslg {
+        /usr/share/code/code $args
+    }
 }
 
 # x11
