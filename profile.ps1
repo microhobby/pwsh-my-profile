@@ -53,7 +53,7 @@ $global:EXIT_CODE = 0
 
 # clear the last win32 exit code
 $global:LASTEXITCODE = 0
-$global:MINUS_SECTS = 1
+$global:MINUS_SECTS = 2
 
 # set my powerline blocks
 [System.Collections.Generic.List[ScriptBlock]]$Prompt = @(
@@ -127,8 +127,8 @@ $global:MINUS_SECTS = 1
                 $ERROR_EMOJI[(Get-Random -Maximum $ERROR_EMOJI.count)]
             }
 
-            $Global:Prompt.Colors[3 - $global:MINUS_SECTS] = "Red"
-            $Global:Prompt.Colors[5 - $global:MINUS_SECTS] = "Red"
+            $Global:Prompt.Colors[5 - $global:MINUS_SECTS] = "#303030"
+            $Global:Prompt.Colors[7 - $global:MINUS_SECTS] = "Red"
         
         # not git repo and all clear
         } else {
@@ -140,8 +140,8 @@ $global:MINUS_SECTS = 1
                 "👌"
             }
 
-            $Global:Prompt.Colors[3 - $global:MINUS_SECTS] = "#303030"
-            $Global:Prompt.Colors[5 - $global:MINUS_SECTS] = "#303030"
+            $Global:Prompt.Colors[5 - $global:MINUS_SECTS] = "#046D03"
+            $Global:Prompt.Colors[7 - $global:MINUS_SECTS] = "#303030"
         }
         
         # clear the errors and last exit code for the next interaction
@@ -160,7 +160,7 @@ Set-PowerLinePrompt `
      -SetCurrentDirectory `
      -RestoreVirtualTerminal `
      -HideError `
-     -Colors "#303030", "#303030", "#02d300", "#0087ff", "#303030"
+     -Colors "#303030", "#303030", "#303030", "#046D03", "#0087ff", "#303030"
 
 # Linux environment
 # enable color support of ls and also add handy aliases
