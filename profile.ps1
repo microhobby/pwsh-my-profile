@@ -9,6 +9,30 @@ Set-Alias ls Get-ChildItem
 Set-Alias grep "Select-String"
 Set-Alias wget Invoke-WebRequest
 
+# lets set the powerline in this profile
+Import-Module PowerLine
+
+# aux variables
+$ERRORS_COUNT = 0
+$ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
+    "🥺", "😫", "💀", "💩", "😰"
+
+$global:EC = 0
+$global:EXIT_CODE = 0
+$Global:JobTop = $null
+
+# clear the last win32 exit code
+$global:LASTEXITCODE = 0
+$global:MINUS_SECTS = 4
+
+# get from the google cloud console https://console.cloud.google.com/apis/credentials
+$GOOGLE_CONSOLE_YOUTUBE_KEY=""
+
+$REMOTE_HOSTNAME="server"
+$DELL_SERVER="192.168.15.53"
+$env:HOSTNAME=[System.Net.Dns]::GetHostName()
+
+
 function gtc () {
     git commit -vs
 }
@@ -106,9 +130,67 @@ function exec () {
     bash -c "exec $args"
 }
 
-function dell () {
-    ssh castello@192.168.15.53
+function export ()
+{
+    foreach ($arg in $args) {
+        $parts=$arg.Split("=")
+        $name=$parts[0]
+        $value=$parts[1]
+        [System.Environment]::SetEnvironmentVariable($name, $value)
+    }
 }
+
+# VS Code remote connection ----------------------------------------------------
+
+function dell () {
+    if ($Global:IsLinux) {
+        if (-not $env:WSL_DISTRO_NAME) {
+            ssh castello@$DELL_SERVER
+        } else {
+            Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
+                "OPENING VS CODE"
+            
+            # open the remote connection from the Windows Side
+            cmd.exe /C code --remote ssh-remote+$DELL_SERVER /home/castello
+            Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
+                "VS CODE ✅"
+            Start-Sleep -Seconds 3
+
+            # open the ssh
+            ssh castello@$DELL_SERVER
+        }
+    } else {
+        ssh castello@$DELL_SERVER
+    }
+}
+
+# in the remote we need to update the sockets in the env
+if ($env:HOSTNAME -eq $REMOTE_HOSTNAME) {
+    function update-vscode-env {
+        $codesPaths = 
+            Get-ChildItem /home/castello/.vscode-server-insiders/bin/*/bin `
+                | Sort-Object LastAccessTime
+
+        $env:PATH = $codesPaths[$codesPaths.Length -1].FullName `
+                        + ":" + $env:PATH
+        
+        $socketPaths =
+            Get-ChildItem /run/user/1000/vscode-ipc-*.sock `
+                | Sort-Object LastAccessTime
+        
+        $env:VSCODE_IPC_HOOK_CLI =
+            $socketPaths[$socketPaths.Length -1].FullName
+    }
+
+    function code {
+        update-vscode-env
+        ~/.vscode-server/bin/*/bin/code $args
+    }
+} else {
+    function update-vscode-env {}
+}
+
+# VS Code remote connection ----------------------------------------------------
 
 <#
 .SYNOPSIS
@@ -147,7 +229,6 @@ function CustomHelp () {
 
         $helpDesc = "No help for you today 😥"
         $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
-
 
         if ($line -like "* *" -or $line -like "./*" -or $line -like ".\*") {
             ClearCustomHelp
@@ -212,30 +293,6 @@ function ClearCustomHelp {
         -NoNewline "$helpDesc"
     $Host.UI.RawUI.CursorPosition = $oldPosition
 }
-
-# autocomplete
-Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
-Set-PSReadLineKeyHandler -Key Alt+i -ScriptBlock ${function:CustomHelp}
-Set-PSReadLineKeyHandler -Key Escape -ScriptBlock ${function:ClearCustomHelp}
-# Autocompletion for arrow keys
-Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
-
-# lets set the powerline in this profile
-Import-Module PowerLine
-
-# aux variables
-$ERRORS_COUNT = 0
-$ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
-    "🥺", "😫", "💀", "💩", "😰"
-
-$global:EC = 0
-$global:EXIT_CODE = 0
-$Global:JobTop = $null
-
-# clear the last win32 exit code
-$global:LASTEXITCODE = 0
-$global:MINUS_SECTS = 4
 
 # set my powerline blocks
 [System.Collections.Generic.List[ScriptBlock]]$Prompt = @(
@@ -305,12 +362,20 @@ $global:MINUS_SECTS = 4
         }
     }
     {
-        #$subs = Invoke-RestMethod `
-        #-Uri "https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UC431MbbedNKuIuDBPeSCdyg&key=AIzaSyDTVZpGp9vZBMe_juODjYXdKomWEl7aDDU"
-        
-        #$subs = $subs.items[0].statistics.subscriberCount
-        # "🧮 ${subs} "
-        "🧮 3600"
+        try {
+            $subs = Invoke-RestMethod `
+                    -Uri "https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UC431MbbedNKuIuDBPeSCdyg&key=$GOOGLE_CONSOLE_YOUTUBE_KEY"
+            
+            if ($null -ne $subs.items[0].statistics.subscriberCount) {
+                $subs = $subs.items[0].statistics.subscriberCount
+                "🧮 ${subs} "
+            } else {
+                "🧮 ♾️ "
+            }
+        } catch {
+            "🧮 ♾️ "
+        }
+
         $Global:Prompt.Colors[3] = "#800f55"
     }
     {
@@ -548,8 +613,14 @@ if ($Global:IsLinux) {
     # go
     $env:PATH = "/usr/local/go/bin:$env:PATH"
 
+    # micronucleus
+    $env:PATH="/home/castello/.arduino15/packages/digistump/tools/micronucleus/2.0a4:$env:PATH"
+
     # set USERPROFILE
     $env:USERPROFILE = $env:HOME
+
+    # for WSL x11 client side
+    #$env:DISPLAY="localhost:10.0"
 }
 else {
     # Microsoft Windows
@@ -571,3 +642,11 @@ else {
         $balloon.ShowBalloonTip(5000)
     }
 }
+
+# autocomplete
+Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
+Set-PSReadLineKeyHandler -Key Alt+i -ScriptBlock ${function:CustomHelp}
+Set-PSReadLineKeyHandler -Key Escape -ScriptBlock ${function:ClearCustomHelp}
+# Autocompletion for arrow keys
+Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
+Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
