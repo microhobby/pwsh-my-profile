@@ -25,6 +25,9 @@ $Global:JobTop = $null
 $global:LASTEXITCODE = 0
 $global:MINUS_SECTS = 4
 
+#$global:MAIN_COLOR is the main color background for the terminal sections
+$global:MAIN_COLOR = "#eeeeee"
+
 # get from the google cloud console https://console.cloud.google.com/apis/credentials
 $GOOGLE_CONSOLE_YOUTUBE_KEY=""
 
@@ -104,6 +107,31 @@ function gtcb () {
 
 <#
 .SYNOPSIS
+    git checkout $args [Checkout to branch]
+#>
+function gtb () {
+    git checkout $args
+}
+
+<#
+.SYNOPSIS
+    git branch -a [List all branches]
+#>
+function gtba () {
+    git branch -a
+}
+
+<#
+.SYNOPSIS
+    git branch -d $args [Delete branch locally and remote ⚠️]
+#>
+function gtbd () {
+    git branch -d $args
+    git push origin --delete $args
+}
+
+<#
+.SYNOPSIS
     git rebase -i HEAD~$args [git rebase interactive]
 #>
 function gtrb () {
@@ -124,6 +152,30 @@ function gtrbc () {
 #>
 function gtrba () {
     git rebase --abort
+}
+
+<#
+.SYNOPSIS
+    git fetch fork
+#>
+function gtff () {
+    git fetch fork
+}
+
+<#
+.SYNOPSIS
+    git rebase
+#>
+function gtra () {
+    git rebase $args
+}
+
+<#
+.SYNOPSIS
+    git init
+#>
+function gti () {
+    git init
 }
 
 function exec () {
@@ -331,7 +383,7 @@ function ClearCustomHelp {
         }
         else {
             "."
-            $Global:Prompt.Colors[0] = "#2b2b2b"
+            $Global:Prompt.Colors[0] = "$global:MAIN_COLOR"
         }
     }
     # my current path
@@ -495,7 +547,7 @@ Set-PowerLinePrompt `
     -SetCurrentDirectory `
     -RestoreVirtualTerminal `
     -HideError `
-    -Colors "#2b2b2b", "#2b2b2b", "#2b2b2b", "#2b2b2b", "#2b2b2b", "#187823", "#600094", "#2b2b2b"
+    -Colors "$global:MAIN_COLOR", "$global:MAIN_COLOR", "$global:MAIN_COLOR", "$global:MAIN_COLOR", "$global:MAIN_COLOR", "#187823", "#600094", "$global:MAIN_COLOR"
 
 # maintain the "explorer ." muscle memory
 if ($Global:IsLinux) {
