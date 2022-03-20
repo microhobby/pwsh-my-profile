@@ -579,6 +579,11 @@ if ($Global:IsLinux) {
 
         # start Xforward
         # ssh -fT castello@$DELL_SERVER sleep infinity
+
+        # free Hyper-V memory
+        function freeWSL {
+            sudo bash -c 'sync; echo 1 > /proc/sys/vm/drop_caches'
+        }
     }
 
     # linux enviroment
