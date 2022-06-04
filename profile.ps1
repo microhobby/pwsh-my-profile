@@ -584,6 +584,14 @@ if ($Global:IsLinux) {
         function freeWSL {
             sudo bash -c 'sync; echo 1 > /proc/sys/vm/drop_caches'
         }
+
+        <#
+        .SYNOPSIS
+            There is no systemd on WSL so we need to start dockerd
+        #>
+        function runDockerd {
+            sudo bash -c 'dockerd > /dev/null 2>&1 &'
+        }
     }
 
     # linux enviroment
