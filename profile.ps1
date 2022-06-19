@@ -706,6 +706,11 @@ else {
         $balloon.Visible = $true 
         $balloon.ShowBalloonTip(5000)
     }
+
+    function restartAPO {
+        sudo net stop audiosrv
+        sudo net start audiosrv
+    }
 }
 
 # autocomplete
