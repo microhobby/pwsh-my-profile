@@ -62,7 +62,7 @@ $global:MAIN_COLOR = "#eeeeee"
 # $GOOGLE_CONSOLE_YOUTUBE_KEY=""
 
 $REMOTE_HOSTNAME="server"
-$DELL_SERVER="192.168.0.33"
+$CASTELLO_SERVER="192.168.0.33"
 $DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
 
@@ -257,35 +257,35 @@ function connect-to-droplet () {
 
 # VS Code remote connection ----------------------------------------------------
 
-function dell () {
+function server () {
     if ($Global:IsLinux) {
         if (-not $env:WSL_DISTRO_NAME) {
-            #ssh castello@$DELL_SERVER
+            #ssh castello@$CASTELLO_SERVER
             Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
                 "OPENING VS CODE"
 
-            code --remote ssh-remote+$DELL_SERVER
+            code --remote ssh-remote+$CASTELLO_SERVER
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
                 "VS CODE ✅"
             Start-Sleep -Seconds 3
 
             # open the ssh
-            ssh -X castello@$DELL_SERVER
+            ssh -X castello@$CASTELLO_SERVER
         } else {
             Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
                 "OPENING VS CODE"
 
             # open the remote connection from the Windows Side
-            cmd.exe /C code --remote ssh-remote+$DELL_SERVER /home/castello
+            cmd.exe /C code --remote ssh-remote+$CASTELLO_SERVER /home/castello
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
                 "VS CODE ✅"
             Start-Sleep -Seconds 3
 
             # open the ssh
-            ssh -X castello@$DELL_SERVER
+            ssh -X castello@$CASTELLO_SERVER
         }
     } else {
-        ssh castello@$DELL_SERVER
+        ssh castello@$CASTELLO_SERVER
     }
 }
 
@@ -659,7 +659,7 @@ if ($Global:IsLinux) {
         # ssh-add
 
         # start Xforward
-        # ssh -fT castello@$DELL_SERVER sleep infinity
+        # ssh -fT castello@$CASTELLO_SERVER sleep infinity
 
         # free Hyper-V memory
         function freeWSL {
