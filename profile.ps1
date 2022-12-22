@@ -2,10 +2,40 @@
 # MicroHobby licenses this file to you under the MIT license.
 # See the LICENSE file in the project root for more information.
 
+# supress warnings that we need to use
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidOverwritingBuiltInCmdlets', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidUsingWriteHost', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidUsingInvokeExpression', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidUsingPositionalParameters', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidGlobalVars', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSUseDeclaredVarsMoreThanAssignments', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSUseShouldProcessForStateChangingFunctions', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSUseSingularNouns', ""
+)]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSAvoidUsingEmptyCatchBlock', ""
+)]
+param()
+
 # Aliases
 #Set-Alias ls /usr/bin/ls --color=auto
-Set-Alias ls Get-ChildItem
-#Set-Alias code code-insiders 
+#Set-Alias ls Get-ChildItem
+#Set-Alias code code-insiders
 Set-Alias grep "Select-String"
 Set-Alias wget Invoke-WebRequest
 
@@ -29,12 +59,12 @@ $global:MINUS_SECTS = 4
 $global:MAIN_COLOR = "#eeeeee"
 
 # get from the google cloud console https://console.cloud.google.com/apis/credentials
-$GOOGLE_CONSOLE_YOUTUBE_KEY=""
+# $GOOGLE_CONSOLE_YOUTUBE_KEY=""
 
 $REMOTE_HOSTNAME="server"
-$DELL_SERVER="192.168.15.53"
+$DELL_SERVER="192.168.0.33"
+$DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
-
 
 function gtc () {
     git commit -vs
@@ -178,6 +208,22 @@ function gti () {
     git init
 }
 
+<#
+.SYNOPSIS
+    git config --global user.signingKey
+#>
+function gtck () {
+    $_actualKey = (git config --global user.signingKey)
+
+    if ($_actualKey -eq "9E8404E08DA8ED75") {
+        Write-Host "Setting key for matheus@castello.eng.br"
+        git config --global user.signingkey 7CB84B1084E5AA77
+    } else {
+        Write-Host "Setting key for matheus.castello@toradex.com"
+        git config --global user.signingkey 9E8404E08DA8ED75
+    }
+}
+
 function exec () {
     bash -c "exec $args"
 }
@@ -192,16 +238,48 @@ function export ()
     }
 }
 
+function ls ()
+{
+    /usr/bin/ls --color=auto -lah $args
+}
+
+# Digital ocean droplet remote connection --------------------------------------
+function droplet () {
+    ssh "root@$DROPLET_IP"
+}
+
+function copy-from-droplet () {
+    scp "root@${DROPLET_IP}:${args}" .
+}
+
+function copy-to-droplet () {
+    scp -r $args "root@${DROPLET_IP}:/home/castello"
+}
+
+function connect-to-droplet () {
+    ssh "root@$DROPLET_IP"
+}
+
 # VS Code remote connection ----------------------------------------------------
 
 function dell () {
     if ($Global:IsLinux) {
         if (-not $env:WSL_DISTRO_NAME) {
-            ssh castello@$DELL_SERVER
+            #ssh castello@$DELL_SERVER
+            Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
+                "OPENING VS CODE"
+
+            code --remote ssh-remote+$DELL_SERVER
+            Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
+                "VS CODE ✅"
+            Start-Sleep -Seconds 3
+
+            # open the ssh
+            ssh -X castello@$DELL_SERVER
         } else {
             Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
                 "OPENING VS CODE"
-            
+
             # open the remote connection from the Windows Side
             cmd.exe /C code --remote ssh-remote+$DELL_SERVER /home/castello
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
@@ -209,7 +287,7 @@ function dell () {
             Start-Sleep -Seconds 3
 
             # open the ssh
-            ssh castello@$DELL_SERVER
+            ssh -X castello@$DELL_SERVER
         }
     } else {
         ssh castello@$DELL_SERVER
@@ -219,17 +297,17 @@ function dell () {
 # in the remote we need to update the sockets in the env
 if ($env:HOSTNAME -eq $REMOTE_HOSTNAME) {
     function update-vscode-env {
-        $codesPaths = 
+        $codesPaths =
             Get-ChildItem /home/castello/.vscode-server-insiders/bin/*/bin `
                 | Sort-Object LastAccessTime
 
         $env:PATH = $codesPaths[$codesPaths.Length -1].FullName `
                         + ":" + $env:PATH
-        
+
         $socketPaths =
             Get-ChildItem /run/user/1000/vscode-ipc-*.sock `
                 | Sort-Object LastAccessTime
-        
+
         $env:VSCODE_IPC_HOOK_CLI =
             $socketPaths[$socketPaths.Length -1].FullName
     }
@@ -257,17 +335,17 @@ function dfimage () {
 
 function Test-CommandExists {
 
- Param ($command)
+    Param ($command)
 
- $oldPreference = $ErrorActionPreference
+    $oldPreference = $ErrorActionPreference
 
- $ErrorActionPreference = ‘stop’
+    $ErrorActionPreference = ‘stop’
 
- try {if(Get-Command $command){RETURN $true}}
+    try {if(Get-Command $command){RETURN $true}}
 
- Catch { RETURN $false }
+    Catch { RETURN $false }
 
- Finally {$ErrorActionPreference=$oldPreference}
+    Finally {$ErrorActionPreference=$oldPreference}
 
 }
 
@@ -378,7 +456,7 @@ function ClearCustomHelp {
             Select-Object count -ExpandProperty Count
 
         if ( $diff ) {
-            " 📑 :: $diff "
+            " 📑 > $diff "
             $Global:Prompt.Colors[0] = "#b84a1c"
         }
         else {
@@ -414,19 +492,20 @@ function ClearCustomHelp {
         }
     }
     {
-        try {
-            $subs = Invoke-RestMethod `
-                    -Uri "https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UC431MbbedNKuIuDBPeSCdyg&key=$GOOGLE_CONSOLE_YOUTUBE_KEY"
-            
-            if ($null -ne $subs.items[0].statistics.subscriberCount) {
-                $subs = $subs.items[0].statistics.subscriberCount
-                "🧮 ${subs} "
-            } else {
-                "🧮 ♾️ "
-            }
-        } catch {
-            "🧮 ♾️ "
-        }
+        # try {
+        #     $subs = Invoke-RestMethod `
+        #             -Uri "https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UC431MbbedNKuIuDBPeSCdyg&key=$GOOGLE_CONSOLE_YOUTUBE_KEY"
+
+        #     if ($null -ne $subs.items[0].statistics.subscriberCount) {
+        #         $subs = $subs.items[0].statistics.subscriberCount
+        #         "🧮 ${subs} "
+        #     } else {
+        #         "🧮 ♾️ "
+        #     }
+        # } catch {
+        #     "🧮 ♾️ "
+        # }
+        "🐕"
 
         $Global:Prompt.Colors[3] = "#800f55"
     }
@@ -461,13 +540,13 @@ function ClearCustomHelp {
             }
             elseif ($Global:JobTop -eq $null) {
                 $Global:JobTop = Start-Job -ScriptBlock {
-                    $NumberOfLogicalProcessors = (Get-WmiObject -class Win32_processor
+                    $NumberOfLogicalProcessors = (Get-CimInstance -class Win32_processor
                         | Measure-Object -Sum NumberOfLogicalProcessors
                     ).Sum
                     $topProcess = (Get-Counter '\Process(*)\% Processor Time').Countersamples
                     | Where-Object cookedvalue -gt ($NumberOfLogicalProcessors * 5)
                     | Sort-Object cookedvalue -Desc
-  
+
                     return $topProcess
                 }
 
@@ -500,10 +579,10 @@ function ClearCustomHelp {
 
         # execute git to check current branch
         $gitRet = git rev-parse --abbrev-ref HEAD
-        
+
         if ( $EC -gt $ERRORS_COUNT -or $EXIT_CODE -ne 0) {
             $ERRORS_COUNT = $EC
-            
+
             if ( $gitRet ) {
                 " &#xE0A0; $gitRet "
                 # not git repo and the last cmd return a error
@@ -515,7 +594,7 @@ function ClearCustomHelp {
 
             $Global:Prompt.Colors[5] = "#821616"
             $Global:Prompt.Colors[7] = "#821616"
-        
+
             # not git repo and all clear
         }
         else {
@@ -530,13 +609,13 @@ function ClearCustomHelp {
             $Global:Prompt.Colors[5] = "#187823"
             $Global:Prompt.Colors[7] = "#187823"
         }
-        
+
         # clear the errors and last exit code for the next interaction
         $error.clear()
         $global:LASTEXITCODE = 0
     }
     # my user name
-    { " castello 🤔" }
+    { " castello 🎅" }
     # pipe
     { ">" * ($nestedPromptLevel + 1) }
 )
@@ -552,7 +631,8 @@ Set-PowerLinePrompt `
 # maintain the "explorer ." muscle memory
 if ($Global:IsLinux) {
     if (-not $env:WSL_DISTRO_NAME) {
-        function explorer { dde-file-manager $args }
+        function explorer { dolphin $args }
+        function etcher { /home/castello/bin/balenaEtcher-1.7.9-x64.AppImage --disable-gpu-sandbox }
     }
     else {
         # wsl
@@ -575,7 +655,7 @@ if ($Global:IsLinux) {
         # eval $(ssh-agent -s)
 
         # add the key
-        # ssh-add 
+        # ssh-add
 
         # start Xforward
         # ssh -fT castello@$DELL_SERVER sleep infinity
@@ -599,7 +679,7 @@ if ($Global:IsLinux) {
     # enable color support of ls and also add handy aliases
     if ( Test-Path -Path /usr/bin/dircolors ) {
         test -r ~/.dircolors && $(dircolors -b ~/.dircolors | Out-Null) || $(dircolors -b | Out-Null)
-        
+
         function l {
             /usr/bin/ls --color=auto $args
         }
@@ -634,18 +714,18 @@ if ($Global:IsLinux) {
     # register on demand
     Set-PSReadLineKeyHandler -Key Spacebar -ScriptBlock {
         $line = $cursor = $null
-        
+
         # get the command
         [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref] $line, [ref] $cursor)
         # the key handled must be outputed
         [Microsoft.PowerShell.PSConsoleReadLine]::Insert(' ')
-        
+
         # check if we have the bash complestions mathc
         try {
-            __completation $line   
+            __completation $line
         }
         catch {
-            # nothing to do here    
+            # nothing to do here
         }
     }
 
@@ -663,8 +743,8 @@ if ($Global:IsLinux) {
     #}
 
     # NUTTX
-    #$env:PATH="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/bin:$PATH"
-    $env:PATH = "/opt/gcc/gcc-arm-none-eabi-9-2019-q4-major/bin:$env:PATH"
+    $env:PATH="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/bin:$env:PATH"
+    #$env:PATH = "/opt/gcc/gcc-arm-none-eabi-9-2019-q4-major/bin:$env:PATH"
     $env:PICO_SDK_PATH = "/home/castello/tmp/pico-sdk"
     $env:PATH = "/opt/gcc/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin:$env:PATH"
     #$env:PATH="/opt/gcc-riscvm32/riscv32-esp-elf/bin:$PATH"
@@ -684,8 +764,21 @@ if ($Global:IsLinux) {
     # set USERPROFILE
     $env:USERPROFILE = $env:HOME
 
+    # set NXP M4 SDK
+    $env:ARMGCC_DIR="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/"
+    $env:M4_SDK_ROOT_DIR="/home/castello/tmp/colibriM4"
+
+    # add some QT Tools
+    #$env:PATH = "/usr/lib/qt6/bin/:$env:PATH"
+    $env:PATH = "/home/castello/Qt/6.2.4/gcc_64/bin/:$env:PATH"
+    $env:PATH = "/home/castello/Qt/Tools/QtCreator/bin/:$env:PATH"
+    $env:PATH = "/home/castello/Qt/Tools/QtDesignStudio/bin/:$env:PATH"
+
     # for WSL x11 client side
     #$env:DISPLAY="localhost:10.0"
+
+    # for GPG pass
+    $env:GPG_TTY=$(tty)
 }
 else {
     # Microsoft Windows
@@ -693,17 +786,17 @@ else {
     function explorer { explorer.exe $args }
 
     function Show-Notification-Warn ($title, $text) {
-        Add-Type -AssemblyName System.Windows.Forms 
+        Add-Type -AssemblyName System.Windows.Forms
         $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-        
+
         $path = (Get-Process -id $pid).Path
-        
-        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path) 
-        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Warning 
+
+        $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+        $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Warning
         $balloon.BalloonTipText = "${text}"
-        $balloon.BalloonTipTitle = "${title}" 
-        
-        $balloon.Visible = $true 
+        $balloon.BalloonTipTitle = "${title}"
+
+        $balloon.Visible = $true
         $balloon.ShowBalloonTip(5000)
     }
 
