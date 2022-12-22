@@ -238,11 +238,6 @@ function export ()
     }
 }
 
-function ls ()
-{
-    /usr/bin/ls --color=auto -lah $args
-}
-
 # Digital ocean droplet remote connection --------------------------------------
 function droplet () {
     ssh "root@$DROPLET_IP"
@@ -704,6 +699,11 @@ if ($Global:IsLinux) {
     function ll { ls -alF $args }
     function la { ls -A $args }
     function lcf { ls -CF $args }
+
+    function ls ()
+    {
+        /usr/bin/ls --color=auto -lah $args
+    }
 
     # bash completation?
     # Install-Module -Name "PSBashCompletions"
