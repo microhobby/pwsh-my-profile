@@ -402,8 +402,11 @@ function CustomHelp () {
     }
     catch {
         # do nothing
-        Write-Error $Error[0]
+        #Write-Error $Error[0]
     }
+
+    # we calling this between calls ignore errors
+    $Error.Clear()
 }
 
 function ClearCustomHelp {
@@ -417,12 +420,15 @@ function ClearCustomHelp {
     Write-Host `
         -NoNewline "$helpDesc"
     $Host.UI.RawUI.CursorPosition = $oldPosition
+
+    # we calling this between calls ignore errors
+    $Error.Clear()
 }
 
 # set my powerline blocks
 [System.Collections.Generic.List[ScriptBlock]]$Prompt = @(
     {
-        $global:EC = $error.count
+        $global:EC = $Error.Count
         $global:EXIT_CODE = $global:LASTEXITCODE
     }
     #{ "`t" } # On the first line, right-justify
@@ -575,7 +581,7 @@ function ClearCustomHelp {
         # execute git to check current branch
         $gitRet = git rev-parse --abbrev-ref HEAD
 
-        if ( $EC -gt $ERRORS_COUNT -or $EXIT_CODE -ne 0) {
+        if ($EC -gt $ERRORS_COUNT -or $EXIT_CODE -ne 0) {
             $ERRORS_COUNT = $EC
 
             if ( $gitRet ) {
@@ -606,7 +612,7 @@ function ClearCustomHelp {
         }
 
         # clear the errors and last exit code for the next interaction
-        $error.clear()
+        $Error.Clear()
         $global:LASTEXITCODE = 0
     }
     # my user name
@@ -727,6 +733,9 @@ if ($Global:IsLinux) {
         catch {
             # nothing to do here
         }
+
+        # we calling this between calls ignore errors
+        $Error.Clear()
     }
 
     # x11
