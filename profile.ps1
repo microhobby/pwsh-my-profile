@@ -751,6 +751,11 @@ if ($Global:IsLinux) {
     #    $env:GTK_THEME="Pop-dark"
     #}
 
+    # for .net
+    #$env:DOTNET_ROOT = "/usr/lib/dotnet/dotnet6-6.0.110/sdk/6.0.110/"
+    #$env:DOTNET_ROOT = "$env:HOME/dotnet"
+    #$env:PATH = "/home/castello/dotnet:$env:PATH"
+
     # NUTTX
     $env:PATH="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/bin:$env:PATH"
     #$env:PATH = "/opt/gcc/gcc-arm-none-eabi-9-2019-q4-major/bin:$env:PATH"
