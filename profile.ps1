@@ -813,6 +813,17 @@ else {
         sudo net stop audiosrv
         sudo net start audiosrv
     }
+
+    # add QT tools to the path
+    $env:Qt6_DIR="D:\\Programs\\Qt\\6.3.1\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\6.3.1\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\QtDesignStudio-3.5.0-preview\\bin\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\QtCreator\\bin\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\QtDesignStudio-3.5.0-preview\\bin\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\6.3.1\\mingw_64\\bin\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\mingw1120_64\\bin\\"
+    $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\CMake_64\\bin\\"
+    $env:PATH = "$env:PATH;C:\\Program Files (x86)\\GnuPG\\bin\\"
 }
 
 # autocomplete
