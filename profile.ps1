@@ -260,22 +260,22 @@ function connect-to-droplet () {
 function server () {
     if ($Global:IsLinux) {
         if (-not $env:WSL_DISTRO_NAME) {
-            ssh -X castello@$DELL_SERVER
+            ssh -X castello@$CASTELLO_SERVER
         } else {
             Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
                 "OPENING VS CODE"
 
             # open the remote connection from the Windows Side
-            cmd.exe /C code --remote ssh-remote+$DELL_SERVER
+            cmd.exe /C code --remote ssh-remote+$CASTELLO_SERVER
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
                 "VS CODE ✅"
             Start-Sleep -Seconds 3
 
             # open the ssh
-            ssh -X castello@$DELL_SERVER
+            ssh -X castello@$CASTELLO_SERVER
         }
     } else {
-        ssh castello@$DELL_SERVER
+        ssh castello@$CASTELLO_SERVER
     }
 }
 
