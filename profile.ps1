@@ -36,8 +36,8 @@ param()
 #Set-Alias ls /usr/bin/ls --color=auto
 #Set-Alias ls Get-ChildItem
 #Set-Alias code code-insiders
-Set-Alias grep "Select-String"
-Set-Alias wget Invoke-WebRequest
+#Set-Alias grep "Select-String"
+#Set-Alias wget Invoke-WebRequest
 
 # lets set the powerline in this profile
 Import-Module PowerLine
@@ -796,6 +796,8 @@ if ($Global:IsLinux) {
 }
 else {
     # Microsoft Windows
+    Set-Alias grep "Select-String"
+    Set-Alias wget Invoke-WebRequest
 
     function explorer { explorer.exe $args }
 
