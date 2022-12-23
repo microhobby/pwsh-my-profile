@@ -787,6 +787,9 @@ if ($Global:IsLinux) {
     # for WSL x11 client side
     #$env:DISPLAY="localhost:10.0"
 
+    # add repo
+    $env:PATH = "/home/castello/bin/:$env:PATH"
+
     # for GPG pass
     $env:GPG_TTY=$(tty)
 }
