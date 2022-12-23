@@ -670,22 +670,28 @@ if ($Global:IsLinux) {
     # enable color support of ls and also add handy aliases
     if ( Test-Path -Path /usr/bin/dircolors ) {
         test -r ~/.dircolors && $(dircolors -b ~/.dircolors | Out-Null) || $(dircolors -b | Out-Null)
-
-        function l {
-            /usr/bin/ls --color=auto $args
-        }
         #alias dir='dir --color=auto'
         #alias vdir='vdir --color=auto'
+    }
 
-        # function grep {
-        #     /usr/bin/grep --color=auto $args
-        # }
-        function fgrep {
-            /usr/bin/fgrep --color=auto $args
-        }
-        function egrep {
-            /usr/bin/egrep --color=auto $args
-        }
+    function l {
+        /usr/bin/ls --color=auto $args
+    }
+
+    function grep {
+        /usr/bin/grep --color=auto $args
+    }
+
+    function fgrep {
+        /usr/bin/fgrep --color=auto $args
+    }
+
+    function egrep {
+        /usr/bin/egrep --color=auto $args
+    }
+
+    function wget {
+        /usr/bin/wget $args
     }
 
     # colored GCC warnings and errors
