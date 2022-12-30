@@ -619,7 +619,7 @@ function ClearCustomHelp {
         $global:LASTEXITCODE = 0
     }
     # my user name
-    { " castello 🎅" }
+    { " castello 🥳" }
     # pipe
     { ">" * ($nestedPromptLevel + 1) }
 )
