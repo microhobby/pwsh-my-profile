@@ -318,7 +318,7 @@ if ($env:HOSTNAME -eq $REMOTE_HOSTNAME) {
 
     function code {
         update-vscode-env
-        ~/.vscode-server/bin/*/bin/code $args
+        ~/.vscode-server/bin/*/bin/remote-cli/code $args
     }
 } else {
     function update-vscode-env {}
