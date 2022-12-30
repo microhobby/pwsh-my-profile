@@ -66,10 +66,6 @@ $CASTELLO_SERVER="192.168.0.33"
 $DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
 
-$Global:SIGN_EMAIL=""
-$Global:IN_GIT=$false
-gtck($true)
-
 function gtc () {
     git commit -vs
 }
@@ -242,6 +238,10 @@ function gtck () {
         }
     }
 }
+
+$Global:SIGN_EMAIL=""
+$Global:IN_GIT=$false
+gtck($true)
 
 function exec () {
     bash -c "exec $args"
