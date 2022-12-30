@@ -66,6 +66,10 @@ $CASTELLO_SERVER="192.168.0.33"
 $DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
 
+$Global:SIGN_EMAIL=""
+$Global:IN_GIT=$false
+gtck($true)
+
 function gtc () {
     git commit -vs
 }
@@ -214,13 +218,28 @@ function gti () {
 #>
 function gtck () {
     $_actualKey = (git config --global user.signingKey)
+    $Global:SIGN_EMAIL = ""
 
     if ($_actualKey -eq "9E8404E08DA8ED75") {
-        Write-Host "Setting key for matheus@castello.eng.br"
-        git config --global user.signingkey 7CB84B1084E5AA77
+        if ($true -eq $args[0]) {
+            $Global:SIGN_EMAIL = "matheus.castello@toradex.com"
+        } else {
+            $Global:SIGN_EMAIL = "matheus@castello.eng.br"
+            Write-Host "Setting key for matheus@castello.eng.br"
+            git config --global user.email "matheus@castello.eng.br"
+            git config --global user.name "Matheus Castello"
+            git config --global user.signingkey 7CB84B1084E5AA77
+        }
     } else {
-        Write-Host "Setting key for matheus.castello@toradex.com"
-        git config --global user.signingkey 9E8404E08DA8ED75
+        if ($true -eq $args[0]) {
+            $Global:SIGN_EMAIL = "matheus@castello.eng.br"
+        } else {
+            $Global:SIGN_EMAIL = "matheus.castello@toradex.com"
+            Write-Host "Setting key for matheus.castello@toradex.com"
+            git config --global user.email "matheus.castello@toradex.com"
+            git config --global user.name "Matheus Castello"
+            git config --global user.signingkey 9E8404E08DA8ED75
+        }
     }
 }
 
@@ -448,10 +467,12 @@ function ClearCustomHelp {
 
         if ( $diff ) {
             " 📑 > $diff "
+            $Global:IN_GIT = $true
             $Global:Prompt.Colors[0] = "#b84a1c"
         }
         else {
             "."
+            $Global:IN_GIT = $false
             $Global:Prompt.Colors[0] = "$global:MAIN_COLOR"
         }
     }
@@ -483,20 +504,12 @@ function ClearCustomHelp {
         }
     }
     {
-        # try {
-        #     $subs = Invoke-RestMethod `
-        #             -Uri "https://www.googleapis.com/youtube/v3/channels?part=statistics&id=UC431MbbedNKuIuDBPeSCdyg&key=$GOOGLE_CONSOLE_YOUTUBE_KEY"
-
-        #     if ($null -ne $subs.items[0].statistics.subscriberCount) {
-        #         $subs = $subs.items[0].statistics.subscriberCount
-        #         "🧮 ${subs} "
-        #     } else {
-        #         "🧮 ♾️ "
-        #     }
-        # } catch {
-        #     "🧮 ♾️ "
-        # }
-        "🐕"
+        if ($Global:IN_GIT) {
+            "🔑 $Global:SIGN_EMAIL"
+        } else {
+            # TODO: check dmesg logs and change the color
+            "🟢"
+        }
 
         $Global:Prompt.Colors[3] = "#800f55"
     }
