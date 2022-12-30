@@ -562,7 +562,7 @@ function ClearCustomHelp {
                 $Global:Prompt.Colors[4] = "#187823"
             }
         } else {
-            $psret = $(ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu -o '|%c;%C' | head -n 2)
+            $psret = $(ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu -o '|%c' -o ';%C' | head -n 2)
             $pts = $psret.Split("`n")[1].Split("|")[1].split(";")
             $cpu = $pts[1]
             $cmd = $pts[0].Trim()
