@@ -668,11 +668,11 @@ if ($Global:IsLinux) {
     # linux enviroment
     # Linux environment
     # enable color support of ls and also add handy aliases
-    if ( Test-Path -Path /usr/bin/dircolors ) {
-        test -r ~/.dircolors && $(dircolors -b ~/.dircolors | Out-Null) || $(dircolors -b | Out-Null)
-        #alias dir='dir --color=auto'
-        #alias vdir='vdir --color=auto'
-    }
+    # if ( Test-Path -Path /usr/bin/dircolors ) {
+    #     test -r ~/.dircolors && $(dircolors -b ~/.dircolors | Out-Null) || $(dircolors -b | Out-Null)
+    #     #alias dir='dir --color=auto'
+    #     #alias vdir='vdir --color=auto'
+    # }
 
     function l {
         /usr/bin/ls --color=auto $args
