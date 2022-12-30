@@ -507,8 +507,8 @@ function ClearCustomHelp {
         if ($Global:IN_GIT) {
             "🔑 $Global:SIGN_EMAIL"
         } else {
-            # TODO: check dmesg logs and change the color
-            "🟢"
+            $_time = Get-Date -Format hh:mm
+            "🕑 $_time "
         }
 
         $Global:Prompt.Colors[3] = "#800f55"
@@ -520,7 +520,7 @@ function ClearCustomHelp {
                 $topProcess = Receive-Job -Job $Global:JobTop
                 Remove-Job $Global:JobTop
                 $Global:JobTop = $null
-                $toptop = "💤"
+                $toptop = "sleep"
 
                 foreach ($item in $topProcess) {
                     if ($item.InstanceName.Contains("idle") -or
@@ -537,8 +537,8 @@ function ClearCustomHelp {
                     }
                 }
 
-                if ($toptop.Contains("💤")) {
-                    "💤"
+                if ($toptop.Contains("sleep")) {
+                    "🥱 "
                     $Global:Prompt.Colors[4] = "#187823"
                 }
             }
@@ -554,11 +554,11 @@ function ClearCustomHelp {
                     return $topProcess
                 }
 
-                "💤"
+                "🥱 "
                 $Global:Prompt.Colors[4] = "#187823"
             }
             else {
-                "💤"
+                "🥱 "
                 $Global:Prompt.Colors[4] = "#187823"
             }
         } else {
@@ -571,7 +571,7 @@ function ClearCustomHelp {
                 "⚠️ ${cmd}"
                 $Global:Prompt.Colors[4] = "#b84a1c"
             } else {
-                "💤"
+                "🥱 "
                 $Global:Prompt.Colors[4] = "#187823"
             }
         }
