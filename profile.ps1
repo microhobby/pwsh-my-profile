@@ -44,8 +44,8 @@ Import-Module PowerLine
 
 # aux variables
 $ERRORS_COUNT = 0
-$ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
-    "🥺", "😫", "💀", "💩", "😰"
+$ERROR_EMOJI = " &#xF6F7; ", " &#xF6F6; ", " &#xE238; ", " &#xE231; ", 
+    " &#xF188; ", " &#xEA81; ", " &#xFA12; "
 
 $global:EC = 0
 $global:EXIT_CODE = 0
@@ -153,7 +153,7 @@ function gtba () {
 
 <#
 .SYNOPSIS
-    git branch -d $args [Delete branch locally and remote ⚠️]
+    git branch -d $args [Delete branch locally and remote  &#xF071;]
 #>
 function gtbd () {
     git branch -d $args
@@ -287,7 +287,7 @@ function server () {
             # open the remote connection from the Windows Side
             cmd.exe /C code --remote ssh-remote+$CASTELLO_SERVER
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
-                "VS CODE ✅"
+                "VS CODE &#xF058; "
             Start-Sleep -Seconds 3
 
             # open the ssh
@@ -318,7 +318,7 @@ if ($env:HOSTNAME -eq $REMOTE_HOSTNAME) {
 
     function code {
         update-vscode-env
-        ~/.vscode-server/bin/*/bin/remote-cli/code $args
+        ~/.vscode-server/bin/*/bin/code-server $args
     }
 } else {
     function update-vscode-env {}
@@ -361,7 +361,7 @@ function CustomHelp () {
             [ref] $cursor
         )
 
-        $helpDesc = "No help for you today 😥"
+        $helpDesc = "No help for you today  &#xF6F7;"
         $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
 
         if ($line -like "* *" -or $line -like "./*" -or $line -like ".\*") {
@@ -375,7 +375,7 @@ function CustomHelp () {
                 if ($help -like "*nothing appropriate*" -and (Test-CommandExists($line) -eq $true)) {
                     $help = Get-Help $line
                 } elseif ($help -like "*nothing appropriate*") {
-                    $help = "No help for you today 😥"
+                    $help = "No help for you today  &#xF6F7;"
                 }
             } else {
                 if (Test-CommandExists($line) -eq $true) {
@@ -406,7 +406,7 @@ function CustomHelp () {
         Write-Host `
             -ForegroundColor White `
             -BackgroundColor DarkMagenta `
-            -NoNewline "🆘➡️ $helpDesc "
+            -NoNewline " &#xF7D6; &#xF0A9; $helpDesc "
         $Host.UI.RawUI.CursorPosition = $oldPosition
     }
     catch {
@@ -466,7 +466,7 @@ function ClearCustomHelp {
             Select-Object count -ExpandProperty Count
 
         if ( $diff ) {
-            " 📑 > $diff "
+            " &#xE612; > $diff "
             $Global:IN_GIT = $true
             $Global:Prompt.Colors[0] = "#b84a1c"
         }
@@ -480,11 +480,11 @@ function ClearCustomHelp {
     {
         if ($Global:IsWindows) {
             $CPATH = $executionContext.SessionState.Path.CurrentLocation.ToString().Split("\")
-            -join (" 📂 ", $CPATH[$CPATH.Count - 2], "\", $CPATH[$CPATH.Count - 1], " ")
+            -join (" &#xF07B; ", $CPATH[$CPATH.Count - 2], "\", $CPATH[$CPATH.Count - 1], " ")
         }
         else {
             $CPATH = $executionContext.SessionState.Path.CurrentLocation.ToString().Split("/")
-            -join (" 📂 ", $CPATH[$CPATH.Count - 2], "/", $CPATH[$CPATH.Count - 1], " ")
+            -join (" &#xF07B; ", $CPATH[$CPATH.Count - 2], "/", $CPATH[$CPATH.Count - 1], " ")
         }
     }
     {
@@ -494,21 +494,21 @@ function ClearCustomHelp {
         if ($Global:IsWindows) {
             $versions = [System.Environment]::OSVersion.Version
             $build = $versions.Build
-            "🪟 Windows Build $build"
+            " &#xE70F; Windows Build $build"
         }
         else {
             $distro = ([String](cat /etc/issue)).Split(" ");
             $name = $distro[0]
             $version = $distro[1]
-            "🐧 Linux @$name $version"
+            " &#xE712; Linux @$name $version"
         }
     }
     {
         if ($Global:IN_GIT) {
-            "🔑 $Global:SIGN_EMAIL"
+            " &#xF43D; $Global:SIGN_EMAIL"
         } else {
             $_time = Get-Date -Format hh:mm
-            "🕑 $_time "
+            " &#xF64F; $_time "
         }
 
         $Global:Prompt.Colors[3] = "#800f55"
@@ -531,14 +531,14 @@ function ClearCustomHelp {
                     }
                     else {
                         $toptop = $item.InstanceName
-                        "⚠️ ${toptop}"
+                        " &#xF071; ${toptop}"
                         $Global:Prompt.Colors[4] = "#b84a1c"
                         break
                     }
                 }
 
                 if ($toptop.Contains("sleep")) {
-                    "🥱 "
+                    " &#xF59F; "
                     $Global:Prompt.Colors[4] = "#187823"
                 }
             }
@@ -554,11 +554,11 @@ function ClearCustomHelp {
                     return $topProcess
                 }
 
-                "🥱 "
+                " &#xF59F; "
                 $Global:Prompt.Colors[4] = "#187823"
             }
             else {
-                "🥱 "
+                " &#xF59F; "
                 $Global:Prompt.Colors[4] = "#187823"
             }
         } else {
@@ -568,10 +568,10 @@ function ClearCustomHelp {
             $cmd = $pts[0].Trim()
 
             if ([System.Double]::Parse($cpu.Trim()) -gt 30) {
-                "⚠️ ${cmd}"
+                " &#xF071; ${cmd}"
                 $Global:Prompt.Colors[4] = "#b84a1c"
             } else {
-                "🥱 "
+                " &#xF59F; "
                 $Global:Prompt.Colors[4] = "#187823"
             }
         }
@@ -607,7 +607,7 @@ function ClearCustomHelp {
                 # not git repo and the last cmd return a error
             }
             else {
-                "👌"
+                " &#xFA12;"
             }
 
             $Global:Prompt.Colors[5] = "#187823"
@@ -619,9 +619,9 @@ function ClearCustomHelp {
         $global:LASTEXITCODE = 0
     }
     # my user name
-    { " castello 🥳" }
+    { " castello  &#xE70C; " }
     # pipe
-    { ">" * ($nestedPromptLevel + 1) }
+    { " &#xE7A2; " * ($nestedPromptLevel + 1) }
 )
 
 # execute
