@@ -48,6 +48,11 @@ $env:_MAIN_EMOJI = "👨‍💻"
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
 
+# TODO: this can be done here because we using preview
+# TODO: but soon when this will be merged on the stable
+# TODO: we will need a way to disable globaly
+Disable-ExperimentalFeature PSCommandNotFoundSuggestion
+
 $global:EC = 0
 $global:EXIT_CODE = 0
 $Global:JobTop = $null
@@ -362,6 +367,45 @@ function Test-CommandExists {
 
 }
 
+function CustomSuggestion (
+    [System.Collections.Generic.List[System.Management.Automation.CommandInfo]]$_cmds
+) {
+    try {
+        $line = $cursor = $null
+        [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState(
+            [ref] $line,
+            [ref] $cursor
+        )
+
+        $helpDesc = "No help for you today 😥"
+        $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+
+        $_cmdTip = $_cmds[0].Name
+        $Global:LAST_CMD = $_cmdTip
+        $help = "Execute ($_cmdTip) ?"
+        $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+        $helpDesc = $help
+
+        $oldPosition = $Host.UI.RawUI.CursorPosition
+        $maxY = $Host.UI.RawUI.BufferSize.Height - 1
+        #$maxY = $oldPosition.Y + 6
+        $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+        Write-Host `
+            -ForegroundColor White `
+            -BackgroundColor DarkBlue `
+            -NoNewline "🆘➡️ $helpDesc "
+        $Host.UI.RawUI.CursorPosition = $oldPosition
+    }
+    catch {
+        # do nothing
+        #Write-Error $Error[0]
+    }
+
+    # we calling this between calls ignore errsors
+    $Error.Clear()
+}
+
 function CustomHelp () {
     try {
         $line = $cursor = $null
@@ -438,6 +482,25 @@ function ClearCustomHelp {
     Write-Host `
         -NoNewline "$helpDesc"
     $Host.UI.RawUI.CursorPosition = $oldPosition
+
+    # we calling this between calls ignore errors
+    $Error.Clear()
+}
+
+function AcceptCustomHelp {
+    $help = ""
+    $helpDesc = $help.PadRight($Host.UI.RawUI.BufferSize.Width, " ")
+    $oldPosition = $Host.UI.RawUI.CursorPosition
+    $maxY = $Host.UI.RawUI.BufferSize.Height - 1
+    #$maxY = $oldPosition.Y + 6
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+    Write-Host `
+        -NoNewline "$helpDesc"
+    $Host.UI.RawUI.CursorPosition = $oldPosition
+
+    # ok now inject the command
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert($Global:LAST_CMD)
 
     # we calling this between calls ignore errors
     $Error.Clear()
@@ -609,6 +672,20 @@ function ClearCustomHelp {
             $Global:Prompt.Colors[7] = "#821616"
 
             # not git repo and all clear
+            # check if the last command was found
+            $_lastCommand = (Get-History -Count 1).CommandLine;
+            if (
+                -not (Get-Command $_lastCommand -ErrorAction SilentlyContinue)
+            ) {
+                # ok, show some options
+                $_commands = (
+                    Get-Command `
+                        -UseFuzzyMatching `
+                        -FuzzyMinimumDistance 1 $_lastCommand
+                )
+
+                CustomSuggestion($_commands)
+            }
         }
         else {
             if ( $gitRet ) {
@@ -858,6 +935,7 @@ else {
 Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 Set-PSReadLineKeyHandler -Key Alt+i -ScriptBlock ${function:CustomHelp}
 Set-PSReadLineKeyHandler -Key Escape -ScriptBlock ${function:ClearCustomHelp}
+Set-PSReadLineKeyHandler -Key Alt+o -ScriptBlock ${function:AcceptCustomHelp}
 # Autocompletion for arrow keys
 Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
