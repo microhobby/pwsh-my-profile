@@ -310,7 +310,7 @@ function server () {
 if ($env:HOSTNAME -eq $REMOTE_HOSTNAME) {
     function update-vscode-env {
         $codesPaths =
-            Get-ChildItem /home/castello/.vscode-server-insiders/bin/*/bin `
+            Get-ChildItem /home/castello/.vscode-server/bin/*/bin `
                 | Sort-Object LastAccessTime
 
         $env:PATH = $codesPaths[$codesPaths.Length -1].FullName `
