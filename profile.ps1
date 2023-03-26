@@ -210,6 +210,14 @@ function gti () {
 
 <#
 .SYNOPSIS
+    git rebase accepting all the inconming changes
+#>
+function gtrtheirs () {
+    git rebase -X theirs $args
+}
+
+<#
+.SYNOPSIS
     git config --global user.signingKey
 #>
 function gtck () {
