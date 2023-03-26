@@ -44,6 +44,7 @@ Import-Module PowerLine
 
 # aux variables
 $ERRORS_COUNT = 0
+$env:_MAIN_EMOJI = "👨‍💻"
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
 
@@ -627,7 +628,7 @@ function ClearCustomHelp {
         $global:LASTEXITCODE = 0
     }
     # my user name
-    { " castello 🥳" }
+    { " castello $env:_MAIN_EMOJI" }
     # pipe
     { ">" * ($nestedPromptLevel + 1) }
 )
