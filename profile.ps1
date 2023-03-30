@@ -391,6 +391,16 @@ function CustomSuggestion (
         #$maxY = $oldPosition.Y + 6
         $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
 
+        # if we are in the last line so we need to scroll the buffer
+        if (
+            $oldPosition.Y -eq $maxY
+        ) {
+            $Host.UI.WriteLine("")
+            $Host.UI.WriteLine("")
+            $Host.UI.WriteLine("")
+            $oldPosition.Y = $oldPosition.Y - 3
+        }
+
         Write-Host `
             -ForegroundColor White `
             -BackgroundColor DarkBlue `
@@ -456,10 +466,20 @@ function CustomHelp () {
         #$maxY = $oldPosition.Y + 6
         $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
 
+        # if we are in the last line so we need to scroll the buffer
+        if (
+            $oldPosition.Y -eq $maxY
+        ) {
+            $Host.UI.WriteLine("")
+            $Host.UI.WriteLine("")
+            $oldPosition.Y = $oldPosition.Y - 2
+        }
+
         Write-Host `
             -ForegroundColor White `
             -BackgroundColor DarkMagenta `
             -NoNewline "🆘➡️ $helpDesc "
+
         $Host.UI.RawUI.CursorPosition = $oldPosition
     }
     catch {
