@@ -781,6 +781,8 @@ if ($Global:IsLinux) {
         #>
         function runDockerd {
             sudo bash -c 'dockerd > /dev/null 2>&1 &'
+            # create a link to the socket on /mnt/wsl/share
+            sudo bash -c 'ln -s /var/run/docker.sock /mnt/wsl/docker.sock'
         }
     }
 
