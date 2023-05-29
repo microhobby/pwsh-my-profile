@@ -955,6 +955,59 @@ else {
 
     # add the rpi imager
     $env:PATH = "$env:PATH;C:\\Program Files (x86)\\Raspberry Pi Imager\\"
+
+    # add a socket in a job
+    function startSocket {
+        if ($null -eq $Global:SOCKET_JOB) {
+            $Global:SOCKET_JOB = Start-ThreadJob -ScriptBlock {
+                function Show-Notification-Warn ($title, $text) {
+                    Add-Type -AssemblyName System.Windows.Forms
+                    $global:balloon.Icon = $null
+                    $global:balloon.Dispose()
+                    $global:balloon = New-Object System.Windows.Forms.NotifyIcon
+            
+                    $path = (Get-Process -id $pid).Path
+            
+                    $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
+                    $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Warning
+                    $balloon.BalloonTipText = "${text}"
+                    $balloon.Text = "Socket Notification"
+                    $balloon.BalloonTipTitle = "${title}"
+
+                    # events
+                    $balloon.Add_Disposed({
+                        $balloon.Icon = $null
+                    })
+
+                    $balloon.Visible = $true
+                    $balloon.ShowBalloonTip(5000)
+                }
+
+                $socket = New-Object System.Net.Sockets.TcpListener -ArgumentList "0.0.0.0", 9000
+                Show-Notification-Warn "socket" "Starting ..."
+                $socket.Start()
+                Write-Output "Socket started ..."
+                Show-Notification-Warn "socket" "Started ..." 
+
+                while ($true) {
+                    $client = $socket.AcceptTcpClient()
+                    $stream = $client.GetStream()
+                    $reader = New-Object System.IO.StreamReader -ArgumentList $stream
+                    $writer = New-Object System.IO.StreamWriter -ArgumentList $stream
+
+                    while ($reader.Peek() -ge 0) {
+                        $line = $reader.ReadLine()
+                        Write-Output $line
+                        Show-Notification-Warn "socket" $line
+                        $writer.Flush()
+                    }
+
+                    $stream.Close()
+                    $client.Close()
+                }
+            }
+        }
+    }
 }
 
 # autocomplete
