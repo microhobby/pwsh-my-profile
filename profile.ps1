@@ -781,12 +781,10 @@ if ($Global:IsLinux) {
             Note that we are creatin the socket in /mnt/wsl
         #>
         function runDockerd {
+            #dockerd > /dev/null 2>&1 &
             sudo bash -c 'dockerd -H unix:///mnt/wsl/docker.sock > /dev/null 2>&1 &'
+            sudo bash -c 'ln -s /mnt/wsl/docker.sock /var/run/docker.sock'
         }
-
-        # function docker {
-        #     docker -H unix:///mnt/wsl/docker.sock $args
-        # }
     }
 
     # linux enviroment
