@@ -952,6 +952,9 @@ else {
     $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\mingw1120_64\\bin\\"
     $env:PATH = "$env:PATH;D:\\Programs\\Qt\\Tools\\CMake_64\\bin\\"
     $env:PATH = "$env:PATH;C:\\Program Files (x86)\\GnuPG\\bin\\"
+
+    # add the rpi imager
+    $env:PATH = "$env:PATH;C:\\Program Files (x86)\\Raspberry Pi Imager\\"
 }
 
 # autocomplete
