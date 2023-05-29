@@ -36,7 +36,7 @@ param()
 #Set-Alias ls /usr/bin/ls --color=auto
 #Set-Alias ls Get-ChildItem
 #Set-Alias code code-insiders
-#Set-Alias grep "Select-String"
+Set-Alias grep /usr/bin/grep
 #Set-Alias wget Invoke-WebRequest
 
 # lets set the powerline in this profile
@@ -778,12 +778,15 @@ if ($Global:IsLinux) {
         <#
         .SYNOPSIS
             There is no systemd on WSL so we need to start dockerd
+            Note that we are creatin the socket in /mnt/wsl
         #>
         function runDockerd {
-            sudo bash -c 'dockerd > /dev/null 2>&1 &'
-            # create a link to the socket on /mnt/wsl/share
-            sudo bash -c 'ln -s /var/run/docker.sock /mnt/wsl/docker.sock'
+            sudo bash -c 'dockerd -H unix:///mnt/wsl/docker.sock > /dev/null 2>&1 &'
         }
+
+        # function docker {
+        #     docker -H unix:///mnt/wsl/docker.sock $args
+        # }
     }
 
     # linux enviroment
@@ -799,9 +802,9 @@ if ($Global:IsLinux) {
         /usr/bin/ls --color=auto $args
     }
 
-    function grep {
-        /usr/bin/grep --color=auto $args
-    }
+    # function grep {
+    #     /usr/bin/grep --color=auto $args
+    # }
 
     function fgrep {
         /usr/bin/fgrep --color=auto $args
@@ -871,7 +874,7 @@ if ($Global:IsLinux) {
     # for .net
     #$env:DOTNET_ROOT = "/usr/lib/dotnet/dotnet6-6.0.110/sdk/6.0.110/"
     #$env:DOTNET_ROOT = "$env:HOME/dotnet"
-    #$env:PATH = "/home/castello/dotnet:$env:PATH"
+    $env:PATH = "/home/castello/.dotnet:$env:PATH"
 
     # NUTTX
     $env:PATH="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/bin:$env:PATH"
