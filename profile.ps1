@@ -44,14 +44,14 @@ Import-Module PowerLine
 
 # aux variables
 $ERRORS_COUNT = 0
-$env:_MAIN_EMOJI = "👨‍💻"
+$env:_MAIN_EMOJI = "☣️"
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
 
 # TODO: this can be done here because we using preview
 # TODO: but soon when this will be merged on the stable
 # TODO: we will need a way to disable globaly
-Disable-ExperimentalFeature PSCommandNotFoundSuggestion
+# Disable-ExperimentalFeature PSCommandNotFoundSuggestion
 
 $global:EC = 0
 $global:EXIT_CODE = 0
@@ -62,13 +62,14 @@ $global:LASTEXITCODE = 0
 $global:MINUS_SECTS = 4
 
 #$global:MAIN_COLOR is the main color background for the terminal sections
-$global:MAIN_COLOR = "#eeeeee"
+$global:MAIN_COLOR = "#555555"
 
 # get from the google cloud console https://console.cloud.google.com/apis/credentials
 # $GOOGLE_CONSOLE_YOUTUBE_KEY=""
 
 $REMOTE_HOSTNAME="server"
 $CASTELLO_SERVER="192.168.0.33"
+$BUILD_SERVER="10.12.1.214"
 $DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
 
@@ -309,6 +310,28 @@ function server () {
         }
     } else {
         ssh castello@$CASTELLO_SERVER
+    }
+}
+
+function build_server () {
+    if ($Global:IsLinux) {
+        if (-not $env:WSL_DISTRO_NAME) {
+            ssh -X cam@$BUILD_SERVER
+        } else {
+            Write-Host -BackgroundColor DarkBlue -ForegroundColor White `
+                "OPENING VS CODE"
+
+            # open the remote connection from the Windows Side
+            cmd.exe /C code --remote ssh-remote+$BUILD_SERVER
+            Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
+                "VS CODE ✅"
+            Start-Sleep -Seconds 3
+
+            # open the ssh
+            ssh -X cam@$BUILD_SERVER
+        }
+    } else {
+        ssh cam@$BUILD_SERVER
     }
 }
 
@@ -785,6 +808,19 @@ if ($Global:IsLinux) {
             sudo bash -c 'dockerd -H unix:///mnt/wsl/docker.sock > /dev/null 2>&1 &'
             sudo bash -c 'ln -s /mnt/wsl/docker.sock /var/run/docker.sock'
         }
+
+        <#
+        .SYNOPSIS
+            There is no systemd on WSL so we need to start local taskium
+        #>
+        function runTaskium {
+            # start background job
+            Start-Job -Name taskium -ScriptBlock {
+                # start taskium
+                Set-Location /home/castello/tmp/matheuscastello/taskium/taskium.Wasm/
+                dotnet run
+            }
+        }
     }
 
     # linux enviroment
@@ -871,8 +907,8 @@ if ($Global:IsLinux) {
 
     # for .net
     #$env:DOTNET_ROOT = "/usr/lib/dotnet/dotnet6-6.0.110/sdk/6.0.110/"
-    #$env:DOTNET_ROOT = "$env:HOME/dotnet"
-    $env:PATH = "/home/castello/.dotnet:$env:PATH"
+    # $env:DOTNET_ROOT = "$env:HOME/.dotnet/"
+    # $env:PATH = "/home/castello/.dotnet:$env:PATH"
 
     # NUTTX
     $env:PATH="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/bin:$env:PATH"
@@ -902,9 +938,9 @@ if ($Global:IsLinux) {
 
     # add some QT Tools
     #$env:PATH = "/usr/lib/qt6/bin/:$env:PATH"
-    $env:PATH = "/home/castello/Qt/6.2.4/gcc_64/bin/:$env:PATH"
-    $env:PATH = "/home/castello/Qt/Tools/QtCreator/bin/:$env:PATH"
-    $env:PATH = "/home/castello/Qt/Tools/QtDesignStudio/bin/:$env:PATH"
+    # $env:PATH = "/home/castello/Qt/6.2.4/gcc_64/bin/:$env:PATH"
+    # $env:PATH = "/home/castello/Qt/Tools/QtCreator/bin/:$env:PATH"
+    # $env:PATH = "/home/castello/Qt/Tools/QtDesignStudio/bin/:$env:PATH"
 
     # for WSL x11 client side
     #$env:DISPLAY="localhost:10.0"
