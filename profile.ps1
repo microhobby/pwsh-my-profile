@@ -46,7 +46,7 @@ Import-Module PowerLine
 $ERRORS_COUNT = 0
 #$env:USE_EMOJI = $false
 $env:_MAIN_EMOJI = "👨‍💻"
-$env:_MAIN_GLIPH = " " 
+$env:_MAIN_GLIPH = "󰮣 " 
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
 $ERROR_GLIPH = "  ", " ; ", "  ", "  ", 
