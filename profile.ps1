@@ -106,7 +106,7 @@ $global:LASTEXITCODE = 0
 $global:MINUS_SECTS = 4
 
 #$global:MAIN_COLOR is the main color background for the terminal sections
-$global:MAIN_COLOR = "#555555"
+$global:MAIN_COLOR = "#ffffff"
 
 # get from the google cloud console https://console.cloud.google.com/apis/credentials
 # $GOOGLE_CONSOLE_YOUTUBE_KEY=""
