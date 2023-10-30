@@ -44,9 +44,53 @@ Import-Module PowerLine
 
 # aux variables
 $ERRORS_COUNT = 0
-$env:_MAIN_EMOJI = "☣️"
+#$env:USE_EMOJI = $false
+$env:_MAIN_EMOJI = "👨‍💻"
+$env:_MAIN_GLIPH = " " 
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
+$ERROR_GLIPH = "  ", " ; ", "  ", "  ", 
+"  ", "  ", "  ", " 󱅧 ", " 󰱭 ", " 󰯈 ", " 󰱵 ", "  ", " ﮙ "
+
+if ($env:USE_EMOJI -eq $true) {
+    $_MAIN_FIG = $env:_MAIN_EMOJI
+    $_OK_FIG = "👌"
+    $_CHECK_FIG = "✅"
+    $_ERROR_FIG = "❌"
+    $_WARNING_FIG = "⚠️"
+    $_LINUX_FIG = "🐧"
+    $_KEY_FIG = "🔑"
+    $_DANGER_FIG = "🚨"
+    $_FOLDER_FIG = "📂"
+    $_TIME_FIG = "🕑"
+    $_SOS_FIG = "🆘"
+    $_ARROW_FIG = "➡️"
+    $_OOPS_FIG = "😓"
+    $_SLEEP_FIG = "🥱"
+    $_REPO_FIG = "📑"
+    $_WIN_FIG = "🪟"
+    $_DOCKER_FIG = "🐳"
+    $_PACKAGE_FIG = "📦"
+} else {
+    $_MAIN_FIG = $env:_MAIN_GLIPH
+    $_OK_FIG = " 󰩐 "
+    $_CHECK_FIG = "  "
+    $_ERROR_FIG = "  "
+    $_WARNING_FIG = "  "
+    $_LINUX_FIG = "  "
+    $_KEY_FIG = "  "
+    $_DANGER_FIG = " 󰌬 "
+    $_FOLDER_FIG = "  "
+    $_TIME_FIG = "  "
+    $_SOS_FIG = " 󰘥 "
+    $_ARROW_FIG = "  "
+    $_OOPS_FIG = "  "
+    $_SLEEP_FIG = " 󰒲 "
+    $_REPO_FIG = "  "
+    $_WIN_FIG = " 󰨡 "
+    $_DOCKER_FIG = " 󰡨 "
+    $_PACKAGE_FIG = "  "
+}
 
 # TODO: this can be done here because we using preview
 # TODO: but soon when this will be merged on the stable
@@ -302,7 +346,7 @@ function server () {
             # open the remote connection from the Windows Side
             cmd.exe /C code --remote ssh-remote+$CASTELLO_SERVER
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
-                "VS CODE ✅"
+                "VS CODE $_CHECK_FIG"
             Start-Sleep -Seconds 3
 
             # open the ssh
@@ -324,7 +368,7 @@ function build_server () {
             # open the remote connection from the Windows Side
             cmd.exe /C code --remote ssh-remote+$BUILD_SERVER
             Write-Host -BackgroundColor DarkYellow -ForegroundColor White `
-                "VS CODE ✅"
+                "VS CODE $_CHECK_FIG"
             Start-Sleep -Seconds 3
 
             # open the ssh
@@ -400,13 +444,13 @@ function CustomSuggestion (
             [ref] $cursor
         )
 
-        $helpDesc = "No help for you today 😥"
-        $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+        $helpDesc = "No help for you today $_OOPS_FIG"
+        $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 10, " ")
 
         $_cmdTip = $_cmds[0].Name
         $Global:LAST_CMD = $_cmdTip
         $help = "Execute ($_cmdTip) ?"
-        $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+        $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 10, " ")
         $helpDesc = $help
 
         $oldPosition = $Host.UI.RawUI.CursorPosition
@@ -427,7 +471,7 @@ function CustomSuggestion (
         Write-Host `
             -ForegroundColor White `
             -BackgroundColor DarkBlue `
-            -NoNewline "🆘➡️ $helpDesc "
+            -NoNewline "$_SOS_FIG $_ARROW_FIG $helpDesc "
         $Host.UI.RawUI.CursorPosition = $oldPosition
     }
     catch {
@@ -447,8 +491,8 @@ function CustomHelp () {
             [ref] $cursor
         )
 
-        $helpDesc = "No help for you today 😥"
-        $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+        $helpDesc = "No help for you today $_OOPS_FIG"
+        $helpDesc = $helpDesc.PadRight($Host.UI.RawUI.BufferSize.Width - 10, " ")
 
         if ($line -like "* *" -or $line -like "./*" -or $line -like ".\*") {
             ClearCustomHelp
@@ -461,7 +505,7 @@ function CustomHelp () {
                 if ($help -like "*nothing appropriate*" -and (Test-CommandExists($line) -eq $true)) {
                     $help = Get-Help $line
                 } elseif ($help -like "*nothing appropriate*") {
-                    $help = "No help for you today 😥"
+                    $help = "No help for you today $_OOPS_FIG"
                 }
             } else {
                 if (Test-CommandExists($line) -eq $true) {
@@ -473,14 +517,14 @@ function CustomHelp () {
         if ($null -ne $help.Synopsis -and $help.Count -le 1) {
             #$helpDesc = $line
             $help = $help.Synopsis.Trim().Replace("`n", " ")
-            $help = $help.Substring(0, [System.Math]::Min($Host.UI.RawUI.BufferSize.Width - 6, $help.length))
-            $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+            $help = $help.Substring(0, [System.Math]::Min($Host.UI.RawUI.BufferSize.Width - 10, $help.length))
+            $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 10, " ")
             $helpDesc = $help
         } elseif ($Global:IsLinux) {
             # man
             $help = $help.Split("`n")[0]
-            $help = $help.Substring(0, [System.Math]::Min($Host.UI.RawUI.BufferSize.Width - 6, $help.length))
-            $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 6, " ")
+            $help = $help.Substring(0, [System.Math]::Min($Host.UI.RawUI.BufferSize.Width - 10, $help.length))
+            $help = $help.PadRight($Host.UI.RawUI.BufferSize.Width - 10, " ")
             $helpDesc = $help
         }
 
@@ -501,7 +545,7 @@ function CustomHelp () {
         Write-Host `
             -ForegroundColor White `
             -BackgroundColor DarkMagenta `
-            -NoNewline "🆘➡️ $helpDesc "
+            -NoNewline "$_SOS_FIG $_ARROW_FIG $helpDesc"
 
         $Host.UI.RawUI.CursorPosition = $oldPosition
     }
@@ -555,8 +599,8 @@ function AcceptCustomHelp {
         $global:EC = $Error.Count
         $global:EXIT_CODE = $global:LASTEXITCODE
     }
-    #{ "`t" } # On the first line, right-justify
-    # docker ps
+    # { "`t" } # On the first line, right-justify
+    # # docker ps
     # {
     #     # firts block have to check the errors
     #     # check the cmdlets and win32 errors
@@ -570,9 +614,9 @@ function AcceptCustomHelp {
     #                 Select-Object count -ExpandProperty Count
 
     #     if ( $runs ) {
-    #         "🐳 :: 📦 $dpsc :: ▶ $runs"
+    #         "$_DOCKER_FIG :: $_PACKAGE_FIG $dpsc :: ▶ $runs"
     #     } else {
-    #         "🐳 :: 📦 $dpsc"
+    #         "$_DOCKER_FIG :: $_PACKAGE_FIG $dpsc"
     #     }
     # }
     # git modified
@@ -581,7 +625,7 @@ function AcceptCustomHelp {
             Select-Object count -ExpandProperty Count
 
         if ( $diff ) {
-            " 📑 > $diff "
+            " $_REPO_FIG > $diff "
             $Global:IN_GIT = $true
             $Global:Prompt.Colors[0] = "#b84a1c"
         }
@@ -595,11 +639,11 @@ function AcceptCustomHelp {
     {
         if ($Global:IsWindows) {
             $CPATH = $executionContext.SessionState.Path.CurrentLocation.ToString().Split("\")
-            -join (" 📂 ", $CPATH[$CPATH.Count - 2], "\", $CPATH[$CPATH.Count - 1], " ")
+            -join (" $_FOLDER_FIG ", $CPATH[$CPATH.Count - 2], "\", $CPATH[$CPATH.Count - 1], " ")
         }
         else {
             $CPATH = $executionContext.SessionState.Path.CurrentLocation.ToString().Split("/")
-            -join (" 📂 ", $CPATH[$CPATH.Count - 2], "/", $CPATH[$CPATH.Count - 1], " ")
+            -join (" $_FOLDER_FIG ", $CPATH[$CPATH.Count - 2], "/", $CPATH[$CPATH.Count - 1], " ")
         }
     }
     {
@@ -609,21 +653,21 @@ function AcceptCustomHelp {
         if ($Global:IsWindows) {
             $versions = [System.Environment]::OSVersion.Version
             $build = $versions.Build
-            "🪟 Windows Build $build"
+            "$_WIN_FIG Windows Build $build"
         }
         else {
             $distro = ([String](cat /etc/issue)).Split(" ");
             $name = $distro[0]
             $version = $distro[1]
-            "🐧 Linux @$name $version"
+            "$_LINUX_FIG Linux @$name $version"
         }
     }
     {
         if ($Global:IN_GIT) {
-            "🔑 $Global:SIGN_EMAIL"
+            "$_KEY_FIG $Global:SIGN_EMAIL"
         } else {
             $_time = Get-Date -Format hh:mm
-            "🕑 $_time "
+            "$_TIME_FIG $_time "
         }
 
         $Global:Prompt.Colors[3] = "#800f55"
@@ -646,14 +690,14 @@ function AcceptCustomHelp {
                     }
                     else {
                         $toptop = $item.InstanceName
-                        "⚠️ ${toptop}"
+                        "$_WARNING_FIG ${toptop}"
                         $Global:Prompt.Colors[4] = "#b84a1c"
                         break
                     }
                 }
 
                 if ($toptop.Contains("sleep")) {
-                    "🥱 "
+                    "$_SLEEP_FIG "
                     $Global:Prompt.Colors[4] = "#187823"
                 }
             }
@@ -669,11 +713,11 @@ function AcceptCustomHelp {
                     return $topProcess
                 }
 
-                "🥱 "
+                "$_SLEEP_FIG "
                 $Global:Prompt.Colors[4] = "#187823"
             }
             else {
-                "🥱 "
+                "$_SLEEP_FIG "
                 $Global:Prompt.Colors[4] = "#187823"
             }
         } else {
@@ -683,10 +727,10 @@ function AcceptCustomHelp {
             $cmd = $pts[0].Trim()
 
             if ([System.Double]::Parse($cpu.Trim()) -gt 30) {
-                "⚠️ ${cmd}"
+                "$_WARNING_FIG ${cmd}"
                 $Global:Prompt.Colors[4] = "#b84a1c"
             } else {
-                "🥱 "
+                "$_SLEEP_FIG "
                 $Global:Prompt.Colors[4] = "#187823"
             }
         }
@@ -736,7 +780,7 @@ function AcceptCustomHelp {
                 # not git repo and the last cmd return a error
             }
             else {
-                "👌"
+                "$_OK_FIG"
             }
 
             $Global:Prompt.Colors[5] = "#187823"
@@ -748,7 +792,7 @@ function AcceptCustomHelp {
         $global:LASTEXITCODE = 0
     }
     # my user name
-    { " castello $env:_MAIN_EMOJI" }
+    { " castello $_MAIN_FIG" }
     # pipe
     { ">" * ($nestedPromptLevel + 1) }
 )
