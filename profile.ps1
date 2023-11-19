@@ -36,7 +36,7 @@ param()
 #Set-Alias ls /usr/bin/ls --color=auto
 #Set-Alias ls Get-ChildItem
 #Set-Alias code code-insiders
-Set-Alias grep /usr/bin/grep
+#Set-Alias grep /usr/bin/grep
 #Set-Alias wget Invoke-WebRequest
 
 # lets set the powerline in this profile
@@ -45,11 +45,11 @@ Import-Module PowerLine
 # aux variables
 $ERRORS_COUNT = 0
 #$env:USE_EMOJI = $false
-$env:_MAIN_EMOJI = "👨‍💻"
-$env:_MAIN_GLIPH = "󰮣 " 
+$env:_MAIN_EMOJI = "🆕"
+$env:_MAIN_GLIPH = "󰎔 "
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
-$ERROR_GLIPH = "  ", " ; ", "  ", "  ", 
+$ERROR_GLIPH = "  ", " ; ", "  ", "  ",
 "  ", "  ", "  ", " 󱅧 ", " 󰱭 ", " 󰯈 ", " 󰱵 ", "  ", " ﮙ "
 
 if ($env:USE_EMOJI -eq $true) {
@@ -1045,9 +1045,9 @@ else {
                     $global:balloon.Icon = $null
                     $global:balloon.Dispose()
                     $global:balloon = New-Object System.Windows.Forms.NotifyIcon
-            
+
                     $path = (Get-Process -id $pid).Path
-            
+
                     $balloon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($path)
                     $balloon.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::Warning
                     $balloon.BalloonTipText = "${text}"
@@ -1067,7 +1067,7 @@ else {
                 Show-Notification-Warn "socket" "Starting ..."
                 $socket.Start()
                 Write-Output "Socket started ..."
-                Show-Notification-Warn "socket" "Started ..." 
+                Show-Notification-Warn "socket" "Started ..."
 
                 while ($true) {
                     $client = $socket.AcceptTcpClient()
