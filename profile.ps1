@@ -2,6 +2,8 @@
 # MicroHobby licenses this file to you under the MIT license.
 # See the LICENSE file in the project root for more information.
 
+# to use nvm for set node you need to first run it on bash
+
 # supress warnings that we need to use
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
     'PSAvoidOverwritingBuiltInCmdlets', ""
@@ -36,7 +38,7 @@ param()
 #Set-Alias ls /usr/bin/ls --color=auto
 #Set-Alias ls Get-ChildItem
 #Set-Alias code code-insiders
-#Set-Alias grep /usr/bin/grep
+Set-Alias grep /usr/bin/grep
 #Set-Alias wget Invoke-WebRequest
 
 # lets set the powerline in this profile
@@ -45,12 +47,12 @@ Import-Module PowerLine
 # aux variables
 $ERRORS_COUNT = 0
 #$env:USE_EMOJI = $false
-$env:_MAIN_EMOJI = "🆕"
-$env:_MAIN_GLIPH = "󰎔 "
+$env:_MAIN_EMOJI = "👨‍💻"
+$env:_MAIN_GLIPH = "󰨞 "
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
-$ERROR_GLIPH = "  ", " ; ", "  ", "  ",
-"  ", "  ", "  ", " 󱅧 ", " 󰱭 ", " 󰯈 ", " 󰱵 ", "  ", " ﮙ "
+$ERROR_GLIPH = " 󰇸 ", "  ", "  ", "  ", " 󰫜 ",
+    "  ", "  ", "  ", " 󱅧 ", " 󰱭 ", " 󰯈 ", " 󰱵 ", "  ", " 󰻖 ", " 󱕽 "
 
 if ($env:USE_EMOJI -eq $true) {
     $_MAIN_FIG = $env:_MAIN_EMOJI
@@ -77,7 +79,7 @@ if ($env:USE_EMOJI -eq $true) {
     $_CHECK_FIG = "  "
     $_ERROR_FIG = "  "
     $_WARNING_FIG = "  "
-    $_LINUX_FIG = "  "
+    $_LINUX_FIG = "  "
     $_KEY_FIG = "  "
     $_DANGER_FIG = " 󰌬 "
     $_FOLDER_FIG = "  "
@@ -880,21 +882,21 @@ if ($Global:IsLinux) {
         /usr/bin/ls --color=auto $args
     }
 
-    # function grep {
-    #     /usr/bin/grep --color=auto $args
+    # function grop {
+    #     /usr/bin/grep $args
     # }
 
-    function fgrep {
-        /usr/bin/fgrep --color=auto $args
-    }
+    # function fgrep {
+    #     /usr/bin/fgrep $args
+    # }
 
-    function egrep {
-        /usr/bin/egrep --color=auto $args
-    }
+    # function egrep {
+    #     /usr/bin/egrep $args
+    # }
 
-    function wget {
-        /usr/bin/wget $args
-    }
+    # function wget {
+    #     /usr/bin/wget $args
+    # }
 
     # colored GCC warnings and errors
     #$env:GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
@@ -994,6 +996,9 @@ if ($Global:IsLinux) {
 
     # for GPG pass
     $env:GPG_TTY=$(tty)
+
+    # for use NVIDIA with D3D12
+    $env:MESA_D3D12_DEFAULT_ADAPTER_NAME="NVIDIA"
 }
 else {
     # Microsoft Windows
