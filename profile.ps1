@@ -44,15 +44,42 @@ Set-Alias grep /usr/bin/grep
 # lets set the powerline in this profile
 Import-Module PowerLine
 
+function __fixup_utf8 ([string] $str) {
+    # check the size of each char
+    foreach ($char in $str) {
+        $charSize = [System.Text.Encoding]::UTF8.GetByteCount($char)
+        if ($charSize -gt 4) {
+            #Write-Host "$char size = $charSize Greater than 4"
+            $str = $str.Replace($char, "$char`b")
+        }
+    }
+
+    return $str
+}
+
 # aux variables
 $ERRORS_COUNT = 0
 #$env:USE_EMOJI = $false
 $env:_MAIN_EMOJI = "👨‍💻"
-$env:_MAIN_GLIPH = "󰨞 "
+$env:_MAIN_GLIPH = __fixup_utf8 "󰨞 "
 $ERROR_EMOJI = "😖", "😵", "🥴", "😭", "😱", "😡", "🤬", "🙃", "🤔", "🙄", `
     "🥺", "😫", "💀", "💩", "😰"
-$ERROR_GLIPH = " 󰇸 ", "  ", "  ", "  ", " 󰫜 ",
-    "  ", "  ", "  ", " 󱅧 ", " 󰱭 ", " 󰯈 ", " 󰱵 ", "  ", " 󰻖 ", " 󱕽 "
+$ERROR_GLIPH =
+    __fixup_utf8 " 󰇸 ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 " 󰫜 ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 " 󱅧 ",
+    __fixup_utf8 " 󰱭 ",
+    __fixup_utf8 " 󰯈 ",
+    __fixup_utf8 " 󰱵 ",
+    __fixup_utf8 "  ",
+    __fixup_utf8 " 󰻖 ",
+    __fixup_utf8 " 󱕽 "
 
 if ($env:USE_EMOJI -eq $true) {
     $_MAIN_FIG = $env:_MAIN_EMOJI
@@ -75,23 +102,23 @@ if ($env:USE_EMOJI -eq $true) {
     $_PACKAGE_FIG = "📦"
 } else {
     $_MAIN_FIG = $env:_MAIN_GLIPH
-    $_OK_FIG = " 󰩐 "
-    $_CHECK_FIG = "  "
-    $_ERROR_FIG = "  "
-    $_WARNING_FIG = "  "
-    $_LINUX_FIG = "  "
-    $_KEY_FIG = "  "
-    $_DANGER_FIG = " 󰌬 "
-    $_FOLDER_FIG = "  "
-    $_TIME_FIG = "  "
-    $_SOS_FIG = " 󰘥 "
-    $_ARROW_FIG = "  "
-    $_OOPS_FIG = "  "
-    $_SLEEP_FIG = " 󰒲 "
-    $_REPO_FIG = "  "
-    $_WIN_FIG = " 󰨡 "
-    $_DOCKER_FIG = " 󰡨 "
-    $_PACKAGE_FIG = "  "
+    $_OK_FIG = __fixup_utf8 " 󰩐 "
+    $_CHECK_FIG = __fixup_utf8 "  "
+    $_ERROR_FIG = __fixup_utf8 "  "
+    $_WARNING_FIG = __fixup_utf8 "  "
+    $_LINUX_FIG = __fixup_utf8 "  "
+    $_KEY_FIG = __fixup_utf8 "  "
+    $_DANGER_FIG = __fixup_utf8 " 󰌬 "
+    $_FOLDER_FIG = __fixup_utf8 "  "
+    $_TIME_FIG = __fixup_utf8 "  "
+    $_SOS_FIG = __fixup_utf8 " 󰘥 "
+    $_ARROW_FIG = __fixup_utf8 "  "
+    $_OOPS_FIG = __fixup_utf8 "  "
+    $_SLEEP_FIG = __fixup_utf8 " 󰒲 "
+    $_REPO_FIG = __fixup_utf8 "  "
+    $_WIN_FIG = __fixup_utf8 " 󰨡 "
+    $_DOCKER_FIG = __fixup_utf8 " 󰡨 "
+    $_PACKAGE_FIG = __fixup_utf8 "  "
 }
 
 # TODO: this can be done here because we using preview
