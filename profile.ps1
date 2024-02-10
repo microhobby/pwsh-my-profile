@@ -38,22 +38,27 @@ param()
 #Set-Alias ls /usr/bin/ls --color=auto
 #Set-Alias ls Get-ChildItem
 #Set-Alias code code-insiders
+Set-Alias c clear
 Set-Alias grep /usr/bin/grep
 #Set-Alias wget Invoke-WebRequest
 
 # lets set the powerline in this profile
 Import-Module PowerLine
 
+# the issue that this is fixing up is already fixed on the
+# build 26052 of Windows conhost
 function __fixup_utf8 ([string] $str) {
     # check the size of each char
-    foreach ($char in $str) {
-        $charSize = [System.Text.Encoding]::UTF8.GetByteCount($char)
-        if ($charSize -gt 4) {
-            #Write-Host "$char size = $charSize Greater than 4"
-            $str = $str.Replace($char, "$char`b")
-        }
-    }
+    # foreach ($char in $str) {
+    #     $charSize = [System.Text.Encoding]::UTF8.GetByteCount($char)
+    #     if ($charSize -gt 4) {
+    #         $str = $str.Replace($char, "$char`b")
+    #     }
+    # }
 
+    # return $str
+
+    # since is fixed, do nothing
     return $str
 }
 
