@@ -105,6 +105,7 @@ if ($env:USE_EMOJI -eq $true) {
     $_WIN_FIG = "🪟"
     $_DOCKER_FIG = "🐳"
     $_PACKAGE_FIG = "📦"
+    $_ROBOT_FIG = "🤖"
 } else {
     $_MAIN_FIG = $env:_MAIN_GLIPH
     $_OK_FIG = __fixup_utf8 " 󰩐 "
@@ -124,6 +125,7 @@ if ($env:USE_EMOJI -eq $true) {
     $_WIN_FIG = __fixup_utf8 " 󰨡 "
     $_DOCKER_FIG = __fixup_utf8 " 󰡨 "
     $_PACKAGE_FIG = __fixup_utf8 "  "
+    $_ROBOT_FIG = __fixup_utf8 "󰚩 "
 }
 
 # TODO: this can be done here because we using preview
@@ -150,6 +152,104 @@ $CASTELLO_SERVER="192.168.0.33"
 $BUILD_SERVER="10.12.1.214"
 $DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
+
+function copilot () {
+    # first check if the github CLI installed
+    $_ret = Get-Command gh
+    if ($null -eq $_ret) {
+        Write-Host `
+            -ForegroundColor Red `
+            "$_ERROR_FIG GitHub CLI not found, please install it: https://docs.github.com/en/copilot/github-copilot-in-the-cli/using-github-copilot-in-the-cli#prerequisites"
+        return
+    }
+
+    # check if the copilot is installed
+    $_ret = $(gh extension list)
+    if (-not $_ret.Contains("copilot")) {
+        Write-Host `
+            -ForegroundColor Red `
+            "$_ERROR_FIG GitHub Copilot not found, please install it: https://docs.github.com/en/copilot/github-copilot-in-the-cli/using-github-copilot-in-the-cli#prerequisites"
+        return
+    }
+
+    # use it
+    # get args
+    #$_args = $args -join " "
+
+    # move the cursor to the bottom of the terminal
+    $line = $cursor = $null
+        [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState(
+            [ref] $line,
+            [ref] $cursor
+        )
+
+    $oldPositionOriginalPosition = $Host.UI.RawUI.CursorPosition
+    $oldPosition = $Host.UI.RawUI.CursorPosition
+    $maxY = $Host.UI.RawUI.BufferSize.Height - 2
+    #$maxY = $oldPosition.Y + 6
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+    # if we are in the last line so we need to scroll the buffer
+    if (
+        $oldPosition.Y -ige $maxY
+    ) {
+        $Host.UI.WriteLine("")
+        $Host.UI.WriteLine("")
+        $Host.UI.WriteLine("")
+        $Host.UI.WriteLine("")
+        $Host.UI.WriteLine("")
+
+        $oldPositionOriginalPosition.Y = $oldPositionOriginalPosition.Y - 4
+    }
+
+    # draw the line
+    $help = ""
+    $helpDesc = $help.PadRight($Host.UI.RawUI.BufferSize.Width -1, " ")
+    $oldPosition = $Host.UI.RawUI.CursorPosition
+    $maxY = $Host.UI.RawUI.BufferSize.Height - 2
+    #$maxY = $oldPosition.Y + 6
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+    Write-Host `
+        -NoNewline "`e[22;38;5;15;48;2;0;0;128m $helpDesc"
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+    # print the robot emoji
+    # read the input
+    Write-Host `
+        -NoNewline "$_ROBOT_FIG : "
+    $_input = Read-Host
+    $_input = $_input.Trim()
+
+    # remember the copilot that we use powershell
+    $_input = "$_input"
+
+    # get it from the gh copilot
+    $_ret = $(/home/castello/projects/P/pwsh-my-profile/ghcopilot.sh "$_input")
+    $_ret = $_ret.Trim()
+
+    # unlock the colors
+    Write-Host `
+        -NoNewline `
+        "`e[0m"
+
+    # clean the line
+    $help = ""
+    $helpDesc = $help.PadRight($Host.UI.RawUI.BufferSize.Width, " ")
+    $oldPosition = $Host.UI.RawUI.CursorPosition
+    $maxY = $Host.UI.RawUI.BufferSize.Height - 2
+    #$maxY = $oldPosition.Y + 6
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+    Write-Host `
+        -NoNewline "$helpDesc"
+    $Host.UI.RawUI.CursorPosition = $oldPosition
+
+    # back to the original position
+    $Host.UI.RawUI.CursorPosition = $oldPositionOriginalPosition
+    # add the input to the buffer
+    [Microsoft.PowerShell.PSConsoleReadLine]::Insert($_ret)
+}
 
 function gtc () {
     git commit -vs
@@ -1030,7 +1130,30 @@ if ($Global:IsLinux) {
     $env:GPG_TTY=$(tty)
 
     # for use NVIDIA with D3D12
-    $env:MESA_D3D12_DEFAULT_ADAPTER_NAME="NVIDIA"
+    #$env:MESA_D3D12_DEFAULT_ADAPTER_NAME="NVIDIA"
+    #$env:MESA_LOADER_DRIVER_OVERRIDE="d3d12"
+    #$env:LIBVA_DRIVER_NAME="d3d12"
+    #$env:EGL_PLATFORM="surfaceless"
+
+    # fuck all this GPU shit
+    $env:LIBGL_ALWAYS_SOFTWARE="1"
+    #$env:MESA_LOADER_DRIVER_OVERRIDE="kms_swrast"
+
+    # for indirect rendering
+    #$env:LIBGL_ALWAYS_INDIRECT="1"
+
+    # THE OLD CONFIG
+    # # for WSL x11 client side
+    # #$env:DISPLAY="localhost:10.0"
+
+    # # add repo
+    # $env:PATH = "/home/castello/bin/:$env:PATH"
+
+    # # for GPG pass
+    # $env:GPG_TTY=$(tty)
+
+    # # for use NVIDIA with D3D12
+    # $env:MESA_D3D12_DEFAULT_ADAPTER_NAME="NVIDIA"
 }
 else {
     # Microsoft Windows
@@ -1132,6 +1255,7 @@ Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete
 Set-PSReadLineKeyHandler -Key Alt+i -ScriptBlock ${function:CustomHelp}
 Set-PSReadLineKeyHandler -Key Escape -ScriptBlock ${function:ClearCustomHelp}
 Set-PSReadLineKeyHandler -Key Alt+o -ScriptBlock ${function:AcceptCustomHelp}
+Set-PSReadLineKeyHandler -Key Alt+r -ScriptBlock ${function:Copilot}
 # Autocompletion for arrow keys
 Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
