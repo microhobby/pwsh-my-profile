@@ -148,19 +148,18 @@ $global:MAIN_COLOR = "#ffffff"
 # $GOOGLE_CONSOLE_YOUTUBE_KEY=""
 
 $REMOTE_HOSTNAME="server"
-$CASTELLO_SERVER="192.168.0.33"
+$CASTELLO_SERVER="192.168.0.39"
 $BUILD_SERVER="10.12.1.214"
 $DROPLET_IP="143.198.182.128"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
 
-function copilot () {
-    # first check if the github CLI installed
+function _checkCopilotInstall () {
     $_ret = Get-Command gh
     if ($null -eq $_ret) {
         Write-Host `
             -ForegroundColor Red `
             "$_ERROR_FIG GitHub CLI not found, please install it: https://docs.github.com/en/copilot/github-copilot-in-the-cli/using-github-copilot-in-the-cli#prerequisites"
-        return
+        return 69
     }
 
     # check if the copilot is installed
@@ -169,6 +168,80 @@ function copilot () {
         Write-Host `
             -ForegroundColor Red `
             "$_ERROR_FIG GitHub Copilot not found, please install it: https://docs.github.com/en/copilot/github-copilot-in-the-cli/using-github-copilot-in-the-cli#prerequisites"
+        return 69
+    }
+}
+
+function copilotExplain () {
+    # first check if the github CLI installed
+    if (_checkCopilotInstall -eq 69) {
+        return
+    }
+
+    try {
+
+    $line = $cursor = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState(
+        [ref] $line,
+        [ref] $cursor
+    )
+    $oldPositionOriginalPosition = $Host.UI.RawUI.CursorPosition
+
+    # put the cursor on the bottom of the terminal
+    $maxY = $Host.UI.RawUI.BufferSize.Height - 2
+    #$maxY = $oldPosition.Y + 6
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+
+    # write that the copilot is thinking
+    Write-Host -NoNewline "$_ROBOT_FIG : thinking ..."
+
+
+    if ($line -eq "") {
+        # clean the thiking
+        $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+        Write-Host -NoNewline "                   "
+        $Host.UI.RawUI.CursorPosition = $oldPositionOriginalPosition
+
+        return
+    }
+    else
+    {
+        # make the github call only getting from Explanation: to the end
+        $help= $(bash -c "export TERM=xterm-256color; resize -s $($Host.UI.RawUI.WindowSize.Height) $($Host.UI.RawUI.$Host.UI.RawUI.WindowSize.Width) > /dev/null; echo `"`" | gh copilot explain `"$($line.ToString())`" 2>/dev/null | grep `"Explanation`" -A999")
+
+        $help = $help -split "`n" | ForEach-Object { $_ -replace "`t", '' -replace ' +$', '' } | Out-String
+        # remove trailing new lines
+        $help = $help.TrimEnd()
+
+        # add color scape sequences for all the string inside ``
+        $help = $help -replace '(`[^`]*`)', "`e[33m`$1`e[0m"
+    }
+
+    # clean the thiking
+    $Host.UI.RawUI.CursorPosition = @{ X = 0; Y = $maxY }
+    Write-Host -NoNewline "                   "
+    $Host.UI.RawUI.CursorPosition = $oldPositionOriginalPosition
+
+    # send a new line
+    Write-Host ""
+
+    # write the help
+    Write-Host `
+        "$help"
+
+    # wait a any input key
+    $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+
+    # put the cursor back to the line
+    $Host.UI.RawUI.CursorPosition = $oldPositionOriginalPosition
+    } catch {
+        $Host.UI.RawUI.CursorPosition = $oldPositionOriginalPosition
+    }
+}
+
+function copilot () {
+    # first check if the github CLI installed
+    if (_checkCopilotInstall -eq 69) {
         return
     }
 
@@ -1256,6 +1329,7 @@ Set-PSReadLineKeyHandler -Key Alt+i -ScriptBlock ${function:CustomHelp}
 Set-PSReadLineKeyHandler -Key Escape -ScriptBlock ${function:ClearCustomHelp}
 Set-PSReadLineKeyHandler -Key Alt+o -ScriptBlock ${function:AcceptCustomHelp}
 Set-PSReadLineKeyHandler -Key Alt+r -ScriptBlock ${function:Copilot}
+Set-PSReadLineKeyHandler -Key Alt+e -ScriptBlock ${function:CopilotExplain}
 # Autocompletion for arrow keys
 Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
 Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
