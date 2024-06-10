@@ -625,6 +625,83 @@ function dfimage () {
     # dfimage -sV=1.36 nginx:latest
 }
 
+function _recurRegistrySearch ($namespace, $results = $null, $next = -1) {
+    if ($null -eq $results) {
+        $results = @()
+    }
+
+    if (-1 -eq $next) {
+        $_data = curl -s "https://registry.hub.docker.com/v2/repositories/${namespace}?page_size=100" `
+            | ConvertFrom-Json -Depth 100
+    } elseif ($null -ne $next) {
+        $_data = curl -s $next `
+            | ConvertFrom-Json -Depth 100
+    }
+
+    # concat the results
+    if ($null -ne $_data.results) {
+        $results += $_data.results
+    }
+
+    if ($null -eq $next) {
+        return $results
+    } else {
+        return _recurRegistrySearch $namespace $results $_data.next
+    }
+}
+
+function _recurTagSearch ($namespace, $image, $results = $null, $next = -1) {
+    if ($null -eq $results) {
+        $results = @()
+    }
+
+    if (-1 -eq $next) {
+        $_data = curl -s "https://registry.hub.docker.com/v2/repositories/${namespace}/${image}/tags/?page_size=100" `
+            | ConvertFrom-Json -Depth 100
+    } elseif ($null -ne $next) {
+        $_data = curl -s $next `
+            | ConvertFrom-Json -Depth 100
+    }
+
+    # concat the results
+    if ($null -ne $_data.results) {
+        $results += $_data.results
+    }
+
+    if ($null -eq $next) {
+        return $results
+    } else {
+        return _recurTagSearch $namespace $image $results $_data.next
+    }
+}
+
+<#
+.SYNOPSIS
+    search using the Docker API the tags from a image
+#>
+function dockersearch (
+    [string]$namespace,
+    [string]$image
+) {
+    $_results = _recurRegistrySearch $namespace
+
+    $_results | ForEach-Object {
+        if ($_.name.ToLower().Contains($image.ToLower())) {
+            Write-Host "$namespace/$($_.name):"
+
+            $_tags = _recurTagSearch $namespace $($_.name)
+
+            $_tags | ForEach-Object {
+                Write-Host -ForegroundColor DarkYellow "`t$($_.name)"
+
+                $_.images | ForEach-Object {
+                    Write-Host -ForegroundColor DarkGreen "`t`t$($_.architecture)"
+                }
+            }
+        }
+    }
+}
+
 function Test-CommandExists {
 
     Param ($command)
@@ -1160,8 +1237,8 @@ if ($Global:IsLinux) {
             -e DISPLAY=$DISPLAY `
             -e USER_ID=$(id -u) `
             -e GROUP_ID=$(id -g) `
-            -e USER_NAME=$USER `
-            -e HOME=$HOME `
+            -e USER_NAME=$env:USER `
+            -e HOME=$env:HOME `
             -e TERM=xterm-256color `
             $image $cmd
     }
