@@ -542,7 +542,7 @@ function connect-to-droplet () {
 
 # VS Code remote connection ----------------------------------------------------
 
-function server () {
+function connect-to-server () {
     if ($Global:IsLinux) {
         if (-not $env:WSL_DISTRO_NAME) {
             ssh -X castello@$CASTELLO_SERVER
@@ -564,7 +564,7 @@ function server () {
     }
 }
 
-function build_server () {
+function connect-to-build-server () {
     if ($Global:IsLinux) {
         if (-not $env:WSL_DISTRO_NAME) {
             ssh -X cam@$BUILD_SERVER
