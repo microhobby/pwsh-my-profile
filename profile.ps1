@@ -1143,6 +1143,29 @@ if ($Global:IsLinux) {
         $Error.Clear()
     }
 
+    function calvus (
+        [string] $image,
+        [string] $cmd = "bash"
+    ) {
+        # we need to mount bind the pwd and also share the x11 sockets
+        docker run `
+            -it `
+            -v /tmp/.X11-unix:/tmp/.X11-unix `
+            -v /home/castello:/home/castello `
+            -v /etc/passwd:/etc/passwd:ro `
+            -v /etc/group:/etc/group:ro `
+            -v /etc/shadow:/etc/shadow:ro `
+            -v /etc/sudoers:/etc/sudoers:ro `
+        # also we need to have the same UID and GID
+            -e DISPLAY=$DISPLAY `
+            -e USER_ID=$(id -u) `
+            -e GROUP_ID=$(id -g) `
+            -e USER_NAME=$USER `
+            -e HOME=$HOME `
+            -e TERM=xterm-256color `
+            $image $cmd
+    }
+
     # x11
     # for wsl2
     #$env:LIBGL_ALWAYS_INDIRECT=1
