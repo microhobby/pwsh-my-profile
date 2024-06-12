@@ -298,7 +298,7 @@ function copilot () {
     $_input = "$_input"
 
     # get it from the gh copilot
-    $_ret = $(/home/castello/projects/P/pwsh-my-profile/ghcopilot.sh "$_input")
+    $_ret = $(/home/microhobby/projects/P/pwsh-my-profile/ghcopilot.sh "$_input")
     $_ret = $_ret.Trim()
 
     # unlock the colors
@@ -533,7 +533,7 @@ function copy-from-droplet () {
 }
 
 function copy-to-droplet () {
-    scp -r $args "root@${DROPLET_IP}:/home/castello"
+    scp -r $args "root@${DROPLET_IP}:/home/microhobby"
 }
 
 function connect-to-droplet () {
@@ -590,7 +590,7 @@ function connect-to-build-server () {
 if ($env:HOSTNAME -eq $REMOTE_HOSTNAME) {
     function update-vscode-env {
         $codesPaths =
-            Get-ChildItem /home/castello/.vscode-server/bin/*/bin `
+            Get-ChildItem /home/microhobby/.vscode-server/bin/*/bin `
                 | Sort-Object LastAccessTime
 
         $env:PATH = $codesPaths[$codesPaths.Length -1].FullName `
@@ -1093,7 +1093,7 @@ Set-PowerLinePrompt `
 if ($Global:IsLinux) {
     if (-not $env:WSL_DISTRO_NAME) {
         function explorer { dolphin $args }
-        function etcher { /home/castello/bin/balenaEtcher-1.7.9-x64.AppImage --disable-gpu-sandbox }
+        function etcher { /home/microhobby/bin/balenaEtcher-1.7.9-x64.AppImage --disable-gpu-sandbox }
     }
     else {
         # wsl
@@ -1145,7 +1145,7 @@ if ($Global:IsLinux) {
             # start background job
             Start-Job -Name taskium -ScriptBlock {
                 # start taskium
-                Set-Location /home/castello/tmp/matheuscastello/taskium/taskium.Wasm/
+                Set-Location /home/microhobby/tmp/matheuscastello/taskium/taskium.Wasm/
                 dotnet run
             }
         }
@@ -1220,27 +1220,26 @@ if ($Global:IsLinux) {
         $Error.Clear()
     }
 
-    function calvus (
-        [string] $image,
-        [string] $cmd = "bash"
-    ) {
+    function calvus () {
         # we need to mount bind the pwd and also share the x11 sockets
         docker run `
+            --rm `
             -it `
+            --privileged `
             -v /tmp/.X11-unix:/tmp/.X11-unix `
-            -v /home/castello:/home/castello `
+            -v /home/microhobby:/home/microhobby `
             -v /etc/passwd:/etc/passwd:ro `
             -v /etc/group:/etc/group:ro `
             -v /etc/shadow:/etc/shadow:ro `
             -v /etc/sudoers:/etc/sudoers:ro `
-        # also we need to have the same UID and GID
-            -e DISPLAY=$DISPLAY `
+            -v /var/run:/var/run `
+            -e DISPLAY=$env:DISPLAY `
             -e USER_ID=$(id -u) `
             -e GROUP_ID=$(id -g) `
             -e USER_NAME=$env:USER `
             -e HOME=$env:HOME `
             -e TERM=xterm-256color `
-            $image $cmd
+            $args
     }
 
     # x11
@@ -1259,45 +1258,45 @@ if ($Global:IsLinux) {
     # for .net
     #$env:DOTNET_ROOT = "/usr/lib/dotnet/dotnet6-6.0.110/sdk/6.0.110/"
     # $env:DOTNET_ROOT = "$env:HOME/.dotnet/"
-    # $env:PATH = "/home/castello/.dotnet:$env:PATH"
+    # $env:PATH = "/home/microhobby/.dotnet:$env:PATH"
 
     # NUTTX
     $env:PATH="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/bin:$env:PATH"
     #$env:PATH = "/opt/gcc/gcc-arm-none-eabi-9-2019-q4-major/bin:$env:PATH"
-    $env:PICO_SDK_PATH = "/home/castello/tmp/pico-sdk"
+    $env:PICO_SDK_PATH = "/home/microhobby/tmp/pico-sdk"
     $env:PATH = "/opt/gcc/riscv64-unknown-elf-gcc-8.3.0-2019.08.0-x86_64-linux-ubuntu14/bin:$env:PATH"
     #$env:PATH="/opt/gcc-riscvm32/riscv32-esp-elf/bin:$PATH"
 
     # ESPTOOL
-    $env:PATH = "/home/castello/.local/bin:$env:PATH"
+    $env:PATH = "/home/microhobby/.local/bin:$env:PATH"
 
     # rustup
-    $env:PATH = "/home/castello/.cargo/bin:$env:PATH"
+    $env:PATH = "/home/microhobby/.cargo/bin:$env:PATH"
 
     # go
     $env:PATH = "/usr/local/go/bin:$env:PATH"
 
     # micronucleus
-    $env:PATH="/home/castello/.arduino15/packages/digistump/tools/micronucleus/2.0a4:$env:PATH"
+    $env:PATH="/home/microhobby/.arduino15/packages/digistump/tools/micronucleus/2.0a4:$env:PATH"
 
     # set USERPROFILE
     $env:USERPROFILE = $env:HOME
 
     # set NXP M4 SDK
     $env:ARMGCC_DIR="/opt/gcc/gcc-arm-none-eabi-10-2020-q4-major/"
-    $env:M4_SDK_ROOT_DIR="/home/castello/tmp/colibriM4"
+    $env:M4_SDK_ROOT_DIR="/home/microhobby/tmp/colibriM4"
 
     # add some QT Tools
     #$env:PATH = "/usr/lib/qt6/bin/:$env:PATH"
-    # $env:PATH = "/home/castello/Qt/6.2.4/gcc_64/bin/:$env:PATH"
-    # $env:PATH = "/home/castello/Qt/Tools/QtCreator/bin/:$env:PATH"
-    # $env:PATH = "/home/castello/Qt/Tools/QtDesignStudio/bin/:$env:PATH"
+    # $env:PATH = "/home/microhobby/Qt/6.2.4/gcc_64/bin/:$env:PATH"
+    # $env:PATH = "/home/microhobby/Qt/Tools/QtCreator/bin/:$env:PATH"
+    # $env:PATH = "/home/microhobby/Qt/Tools/QtDesignStudio/bin/:$env:PATH"
 
     # for WSL x11 client side
     #$env:DISPLAY="localhost:10.0"
 
     # add repo
-    $env:PATH = "/home/castello/bin/:$env:PATH"
+    $env:PATH = "/home/microhobby/bin/:$env:PATH"
 
     # for GPG pass
     $env:GPG_TTY=$(tty)
@@ -1320,7 +1319,7 @@ if ($Global:IsLinux) {
     # #$env:DISPLAY="localhost:10.0"
 
     # # add repo
-    # $env:PATH = "/home/castello/bin/:$env:PATH"
+    # $env:PATH = "/home/microhobby/bin/:$env:PATH"
 
     # # for GPG pass
     # $env:GPG_TTY=$(tty)
