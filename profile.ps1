@@ -151,6 +151,7 @@ $REMOTE_HOSTNAME="server"
 $CASTELLO_SERVER="192.168.0.39"
 $BUILD_SERVER="10.12.1.214"
 $DROPLET_IP="143.198.182.128"
+$AWS_SERVER="ec2-3-133-114-116.us-east-2.compute.amazonaws.com"
 $env:HOSTNAME=[System.Net.Dns]::GetHostName()
 
 function _checkCopilotInstall () {
@@ -538,6 +539,14 @@ function copy-to-droplet () {
 
 function connect-to-droplet () {
     ssh "root@$DROPLET_IP"
+}
+
+function connect-to-aws () {
+    ssh -i "/home/microhobby/.ssh/telemetryKeys.pem" "ubuntu@$AWS_SERVER"
+}
+
+function copy-from-aws () {
+    scp -i "/home/microhobby/.ssh/telemetryKeys.pem" "ubuntu@${AWS_SERVER}:${args}" .
 }
 
 # VS Code remote connection ----------------------------------------------------
