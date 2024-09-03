@@ -1119,7 +1119,7 @@ if ($Global:IsLinux) {
         .SYNOPSIS
             For wsl we call the Windows Explorer interop
         #>
-        function explorer { wslview $args }
+        function explorer { explorer.exe $args }
 
         # start ssh-agent for WSL add to /etc/profile
         # eval $(ssh-agent -s)
